@@ -327,7 +327,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Matricula> lstMatriculas = new List<Matricula>();
-            string sql = "SELECT * FROM Matricula;";
+            string sql = "SELECT * FROM Matricula WHERE ID <> 0;";
             SqlDataReader reader = null;
             try
             {

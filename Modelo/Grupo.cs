@@ -444,7 +444,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Grupo> lstGrupo = new List<Grupo>();
-            string sql = "SELECT * FROM Grupo;";
+            string sql = "SELECT * FROM Grupo WHERE ID <> 0;";
             SqlDataReader reader = null;
             try
             {

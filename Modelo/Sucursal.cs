@@ -178,7 +178,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Sucursal> lstSucursales = new List<Sucursal>();
-            string sql = "SELECT * FROM Sucursal;";
+            string sql = "SELECT * FROM Sucursal WHERE ID <> 0;";
             SqlDataReader reader = null;
             try
             {

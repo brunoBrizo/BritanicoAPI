@@ -285,7 +285,10 @@ namespace BibliotecaBritanico.Modelo
                     this.TelefonoAux = reader["TelefonoAux"].ToString();
                     this.Direccion = reader["Direccion"].ToString();
                     this.FechaNac = Convert.ToDateTime(reader["FechaNac"]);
-                    this.Clave = this.DesencriptarPassword(reader["Clave"].ToString());
+                    if (this.ID > 0)
+                        this.Clave = this.DesencriptarPassword(reader["Clave"].ToString());
+                    else
+                        this.Clave = reader["Clave"].ToString();
                     this.Activo = Convert.ToBoolean(reader["Activo"]);
                     this.TipoFuncionario = (FuncionarioTipo)Convert.ToInt32(reader["TipoFuncionario"]);
                     ok = true;
@@ -390,7 +393,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Funcionario> lstFuncionarios = new List<Funcionario>();
-            string sql = "SELECT * FROM Funcionario;";
+            string sql = "SELECT * FROM Funcionario WHERE ID <> 0;";
             SqlDataReader reader = null;
             try
             {
@@ -465,7 +468,7 @@ namespace BibliotecaBritanico.Modelo
             List<Funcionario> lstFuncionarios = new List<Funcionario>();
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@SucursalID", sucursal.ID));
-            string sql = "SELECT * FROM Funcionario WHERE SucursalID = @SucursalID;";
+            string sql = "SELECT * FROM Funcionario WHERE ID <> 0 AND SucursalID = @SucursalID;";
             SqlDataReader reader = null;
             try
             {

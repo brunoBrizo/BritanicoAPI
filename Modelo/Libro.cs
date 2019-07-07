@@ -255,7 +255,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Libro> lstLibros = new List<Libro>();
-            string sql = "SELECT * FROM Libro;";
+            string sql = "SELECT * FROM Libro WHERE ID <> 0;";
             SqlDataReader reader = null;
             try
             {

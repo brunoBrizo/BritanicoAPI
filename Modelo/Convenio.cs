@@ -288,7 +288,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Convenio> lstConvenio = new List<Convenio>();
-            string sql = "SELECT * FROM Convenio";
+            string sql = "SELECT * FROM Convenio WHERE ID <> 0";
             SqlDataReader reader = null;
             try
             {

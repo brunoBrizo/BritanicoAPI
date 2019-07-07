@@ -142,13 +142,15 @@ FuncionarioID NUMERIC (10),
 HoraInicio CHARACTER (10),
 HoraFin CHARACTER (10),
 Precio NUMERIC (10, 2),
-Activo BIT NOT NULL
+Anio NUMERIC (4) NOT NULL
 
 CONSTRAINT PK_Grupo PRIMARY KEY (ID, MateriaID),
 CONSTRAINT FK_Grupo_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID),
 CONSTRAINT FK_Grupo_MateriaID FOREIGN KEY (MateriaID) REFERENCES Materia (ID),
 CONSTRAINT FK_Grupo_FuncionarioID FOREIGN KEY (FuncionarioID) REFERENCES Funcionario (ID)
 );
+GO
+CREATE INDEX IDX_Grupo_Anio ON Grupo (Anio);
 GO
 
 
@@ -179,7 +181,8 @@ ContactoAlternativoDos VARCHAR (30),
 ContactoAlternativoDosTel VARCHAR (30),
 ConvenioID NUMERIC (10),
 GrupoID NUMERIC (10),
-MateriaID NUMERIC (10)
+MateriaID NUMERIC (10),
+Activo BIT NOT NULL
 
 CONSTRAINT PK_Estudiante PRIMARY KEY (ID),
 CONSTRAINT FK_Estudiante_ConvenioID FOREIGN KEY (ConvenioID) REFERENCES Convenio (ID),
@@ -189,6 +192,8 @@ GO
 CREATE INDEX IDX_Estudiante_CI ON Estudiante (CI);
 GO
 CREATE INDEX IDX_Estudiante_Nombre ON Estudiante (Nombre);
+GO
+CREATE INDEX IDX_Estudiante_Activo ON Estudiante (Activo);
 GO
 
 
@@ -385,12 +390,29 @@ GO
 
 /*--------------- INSERTS --------------- */
 
-INSERT INTO Empresa VALUES ('212661610019', 'Instituto Britanico', 'Instituto Britanico', 'bbrizolara7@gmail.com', 'Joaquin Suarez 526', '462 24260', '', '');
+INSERT INTO Empresa VALUES ('140185180014', 'Instituto Britanico', 'Instituto Britanico', 'bbrizolara7@gmail.com', 'Joaquin Suarez 526', '462 24260', '', '');
 
-INSERT INTO Sucursal VALUES ('Centro', 'bbrizolara7@gmail.com', 'Joaquin Suarez 526', '462 24260', 'Rivera', 'Nara Fagundez');
-INSERT INTO Sucursal VALUES ('Rivera Chico', 'bbrizolara7Aux@gmail.com', 'Cuaro 123', '462 24260', 'Rivera', 'Nara Fagundez');
+
+SET IDENTITY_INSERT Sucursal ON
+GO
+INSERT INTO Sucursal (ID, Nombre, Email, Direccion, Tel, Ciudad, Encargado) VALUES (0, 'Sin Sucursal', '', '', '', '', '');
+GO
+SET IDENTITY_INSERT Sucursal OFF
+GO
+INSERT INTO Sucursal VALUES ('Centro', 'administracion@britanico.uy', 'Joaquin Suarez 526', '462 24260', 'Rivera', 'Nara Fagundez');
+INSERT INTO Sucursal VALUES ('Rivera Chico', 'administracion@britanico.uy', 'Cuaro 123', '462 24260', 'Rivera', 'Nara Fagundez');
+
+
+SET IDENTITY_INSERT Funcionario ON
+GO
+INSERT INTO Funcionario (ID, SucursalID, CI, Email, Nombre, Telefono, TelefonoAux, Direccion, FechaNac, Clave, Activo, TipoFuncionario) 
+VALUES (0, 0, 0, '', 'Sin Funcionario', '', '', '', '01/01/1950', '', 0, 0);
+SET IDENTITY_INSERT Funcionario OFF
+GO
+
 
 /* Materias Centro*/
+INSERT INTO Materia VALUES (0, 0, 'Default', 0)
 INSERT INTO Materia VALUES (1, 1, 'Kinder', 1000)
 INSERT INTO Materia VALUES (2, 1, 'Children 1', 1300)
 INSERT INTO Materia VALUES (3, 1, 'Children 2', 1500)
@@ -418,19 +440,28 @@ INSERT INTO Materia VALUES (22, 2, 'J4', 2200)
 INSERT INTO Materia VALUES (23, 2, 'J5', 2400)
 INSERT INTO Materia VALUES (24, 2, 'J6', 2600)
 
-/*
-INSERT INTO Funcionario VALUES (1, '48437782', 'bbrizolara7@gmail.com', 'Bruno Brizolara', '099057586', '', 'Mercedes 1472', '14/08/1990', '', 1, 1);
-INSERT INTO Funcionario VALUES (1, '33297965', 'bbrizolara7@gmail.com', 'Nara Fagundez', '099563557', '', 'Atilio Paiva 523', '01/01/1950', '', 1, 2);
-*/
+
+INSERT INTO Grupo VALUES (0, 0, 0, 0, '', '', 0, 0);
+
+
+SET IDENTITY_INSERT Convenio ON
+INSERT INTO Convenio (ID, Nombre, FechaHora, Anio, AsociadoNombre, AsociadoTel, AsociadoMail, AsociadoDireccion, Descuento) VALUES (0, 'Sin Convenio', '01/01/1950', 1950, '', '', '', '', 0);
+SET IDENTITY_INSERT Convenio OFF
 
 INSERT INTO Convenio VALUES ('Circulo Policial', '19/05/2019', 2019, 'Circulo Policial de Rivera', '123456', 'circulo@policial.com', 'Artigas 123', 10);
 INSERT INTO Convenio VALUES ('CASMER', '19/05/2019', 2019, 'CASMER Femi Rivera', '123456', 'casmer@femi.com', 'Carambula 123', 15);
+INSERT INTO Convenio VALUES ('COMERI', '19/05/2019', 2019, 'COMERI Rivera', '123456', 'comeri@gmail.com', 'Rodo 123', 15);
 
+
+INSERT INTO Libro VALUES (0, 0, 'Sin Libro', 0, '', '');
 INSERT INTO Libro VALUES (1, 1, 'Kinder Practico', 300, 'Autor', 'Editorial');
 INSERT INTO Libro VALUES (2, 1, 'Kinder Teorico', 350, 'Autor', 'Editorial');
+INSERT INTO Libro VALUES (3, 4, 'J1 Teorico', 450, 'Autor', 'Editorial');
+INSERT INTO Libro VALUES (4, 4, 'J1 Practico', 450, 'Autor', 'Editorial');
+
 
 /* Numeradores */
-INSERT INTO Numerador VALUES ('LIBRO', 2);
+INSERT INTO Numerador VALUES ('LIBRO', 4);
 INSERT INTO Numerador VALUES ('GRUPO', 0);
 INSERT INTO Numerador VALUES ('MATER', 24);
 INSERT INTO Numerador VALUES ('MATRES', 0);
@@ -438,9 +469,11 @@ INSERT INTO Numerador VALUES ('VENLIB', 0);
 INSERT INTO Numerador VALUES ('EXAMEN', 0);
 INSERT INTO Numerador VALUES ('EXAMES', 0);
 
+
 /* Parametros */
 SELECT * FROM Parametro
-INSERT INTO Parametro VALUES (1, 'Email', 'bbrizolara7@gmail.com');
+INSERT INTO Parametro VALUES (1, 'Email', 'bbrizolara@britanico.uy');
 INSERT INTO Parametro VALUES (2, 'Email Nombre', 'Instituto Britanico');
-INSERT INTO Parametro VALUES (3, 'Email clave', '');
+INSERT INTO Parametro VALUES (3, 'Email clave', 'BritanicoApp!');
 INSERT INTO Parametro VALUES (4, 'Recargo Mensualidad', '10');
+
