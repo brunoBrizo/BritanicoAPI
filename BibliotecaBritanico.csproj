@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{492B5CB3-EB99-4347-B58A-C9969D5D3390}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BibliotecaBritanico</RootNamespace>
+    <AssemblyName>BibliotecaBritanico</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fachada\Fachada_001.cs" />
+    <Compile Include="Modelo\Empresa.cs" />
+    <Compile Include="Modelo\Estudiante.cs" />
+    <Compile Include="Modelo\Convenio.cs" />
+    <Compile Include="Modelo\ExamenEstudianteCuota.cs" />
+    <Compile Include="Modelo\GrupoDia.cs" />
+    <Compile Include="Modelo\Matricula.cs" />
+    <Compile Include="Modelo\Pago.cs" />
+    <Compile Include="Modelo\Grupo.cs" />
+    <Compile Include="Modelo\Libro.cs" />
+    <Compile Include="Modelo\Email.cs" />
+    <Compile Include="Modelo\Examen.cs" />
+    <Compile Include="Modelo\ExamenEstudiante.cs" />
+    <Compile Include="Modelo\FormaPago.cs" />
+    <Compile Include="Modelo\Funcionario.cs" />
+    <Compile Include="Modelo\FuncionarioTipo.cs" />
+    <Compile Include="Modelo\Materia.cs" />
+    <Compile Include="Modelo\MatriculaEstudiante.cs" />
+    <Compile Include="Modelo\Mensualidad.cs" />
+    <Compile Include="Modelo\Sucursal.cs" />
+    <Compile Include="Modelo\TipoDocumento.cs" />
+    <Compile Include="Modelo\VentaLibro.cs" />
+    <Compile Include="Modelo\VentaLibroEstado.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilidad\Herramientas.cs" />
+    <Compile Include="Utilidad\IPersistencia.cs" />
+    <Compile Include="Utilidad\LogError.cs" />
+    <Compile Include="Utilidad\LogErrorTipo.cs" />
+    <Compile Include="Utilidad\Numerador.cs" />
+    <Compile Include="Utilidad\Parametro.cs" />
+    <Compile Include="Utilidad\Persistencia.cs" />
+    <Compile Include="Utilidad\ValidacionException.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DBConnection\DBConnection.csproj">
+      <Project>{d325cf7e-a691-4829-afc4-f184583e33e0}</Project>
+      <Name>DBConnection</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
