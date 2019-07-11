@@ -50,6 +50,40 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/getbycedula/131515
+        [HttpGet("{ci}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Estudiante> GetByCedula(string ci)
+        {
+            try
+            {
+                if (!ci.Equals(String.Empty))
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = 0,
+                        CI = ci
+                    };
+                    estudiante = Fachada.GetEstudiante(estudiante);
+                    if (estudiante == null)
+                    {
+                        return BadRequest("No existe el estudiante");
+                    }
+                    return estudiante;
+                }
+                else
+                {
+                    return BadRequest("Cedula no puede ser vacía");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/getall/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -59,6 +93,33 @@ namespace APIBritanico.Controllers
             try
             {
                 List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantes();
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/getbynombre/
+        [HttpGet("{nombre}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetByNombre(string nombre)
+        {
+            try
+            {
+                if (nombre.Equals(String.Empty))
+                {
+                    return BadRequest("Nombre no puede ser vacío");
+                }
+                Estudiante estudiante = new Estudiante
+                {
+                    ID = 0,
+                    Nombre = nombre
+                };
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudianteByNombre(estudiante);
                 return lstEstudiantes;
             }
             catch (Exception ex)

@@ -1352,30 +1352,6 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
-        public Estudiante ObtenerEstudianteByCedula(Estudiante estudiante)
-        {
-            try
-            {
-                if (estudiante.LeerLazy(Fachada_001.Conexion))
-                    return estudiante;
-                return null;
-            }
-            catch (ValidacionException ex)
-            {
-                throw ex;
-            }
-            catch (SqlException ex)
-            {
-                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudianteByCedula | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudianteByCedula | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
-            }
-        }
-
         public List<Estudiante> ObtenerEstudianteByNombre(Estudiante estudiante)
         {
             try

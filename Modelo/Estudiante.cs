@@ -451,7 +451,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
                     estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
                     estudiante.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
-                    estudiante.Convenio.Leer(strCon);
+                    //estudiante.Convenio.Leer(strCon);
                     estudiante.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
@@ -562,13 +562,13 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             List<Estudiante> lstEstudiantes = new List<Estudiante>();
             List<SqlParameter> lstParametros = new List<SqlParameter>();
-            lstParametros.Add(new SqlParameter("@Nombre", nombre));
-            string sql = "SELECT * FROM Estudiante WHERE Nombre like '%@Nombre%';";
+            lstParametros.Add(new SqlParameter("@Nombre", "%" + nombre + "%"));
+            string sql = "SELECT * FROM Estudiante WHERE Nombre like @Nombre;";
             SqlDataReader reader = null;
             try
             {
                 con.Open();
-                reader = Persistencia.EjecutarConsulta(con, sql, null, CommandType.Text);
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
                 while (reader.Read())
                 {
                     Estudiante estudiante = new Estudiante();
@@ -587,7 +587,8 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
                     estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
                     estudiante.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
-                    estudiante.Convenio.Leer(strCon);
+                    if (estudiante.Convenio.ID > 0)
+                        estudiante.Convenio.Leer(strCon);
                     estudiante.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
