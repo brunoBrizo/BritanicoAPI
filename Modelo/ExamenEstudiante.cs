@@ -316,7 +316,7 @@ namespace BibliotecaBritanico.Modelo
                     foreach (ExamenEstudianteCuota examenCuota in this.LstCuotas)
                     {
                         List<SqlParameter> lstParametrosExamenEstudianteCuota = this.ObtenerParametrosExamenEstudianteCuota(examenCuota);
-                        string sqlCuotas = "UPDATE ExamenEstudianteCuota SET NroCuota = @NroCuota, Precio = @Precio, FechaPago = @FechaPago, CuotaPaga = @CuotaPaga WHERE ID = @ID AND ExamenEstudianteID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID;";
+                        string sqlCuotas = "UPDATE ExamenEstudianteCuota SET Precio = @Precio, FechaPago = @FechaPago, CuotaPaga = @CuotaPaga WHERE ID = @ID AND ExamenEstudianteID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID;";
                         Persistencia.EjecutarNoQuery(con, sqlCuotas, lstParametrosExamenEstudianteCuota, CommandType.Text, tran);
                     }
                     tran.Commit();

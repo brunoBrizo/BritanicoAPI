@@ -32,6 +32,7 @@ namespace BibliotecaBritanico.Modelo
         public int GrupoID { get; set; }
         public int MateriaID { get; set; }
         public bool Activo { get; set; }
+        public List<Mensualidad> LstMensualidades { get; set; } = new List<Mensualidad>();
 
 
         public Estudiante()
@@ -611,6 +612,82 @@ namespace BibliotecaBritanico.Modelo
                 con.Close();
             }
             return lstEstudiantes;
+        }
+
+        public bool LeerConMensualidad(string strCon, int anioAsociado)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool ok = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            SqlDataReader reader = null;
+            string sql = "";
+
+            if (this.ID > 0)
+            {
+                sql = "SELECT * FROM Estudiante WHERE ID = @ID";
+                lstParametros.Add(new SqlParameter("@ID", this.ID));
+            }
+            else if (!this.CI.Equals(String.Empty))
+            {
+                sql = "SELECT * FROM Estudiante WHERE CI = @CI";
+                lstParametros.Add(new SqlParameter("@CI", this.CI));
+            }
+            else
+            {
+                throw new ValidacionException("Datos insuficientes para buscar al Estudiante");
+            }
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    this.ID = Convert.ToInt32(reader["ID"]);
+                    this.Nombre = reader["Nombre"].ToString().Trim();
+                    this.TipoDocumento = (TipoDocumento)Convert.ToInt32(reader["TipoDocumento"]);
+                    this.CI = reader["CI"].ToString().Trim();
+                    this.Tel = reader["Tel"].ToString().Trim();
+                    this.Email = reader["Email"].ToString().Trim();
+                    this.Direccion = reader["Direccion"].ToString().Trim();
+                    this.FechaNac = Convert.ToDateTime(reader["FechaNac"]);
+                    this.Alergico = Convert.ToBoolean(reader["Alergico"]);
+                    this.Alergias = reader["Alergias"].ToString().Trim();
+                    this.ContactoAlternativoUno = reader["ContactoAlternativoUno"].ToString().Trim();
+                    this.ContactoAlternativoUnoTel = reader["ContactoAlternativoUnoTel"].ToString().Trim();
+                    this.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
+                    this.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
+                    this.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
+                    if (this.Convenio.ID > 0)
+                        this.Convenio.Leer(strCon);
+                    this.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    this.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    this.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    this.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    this.Activo = Convert.ToBoolean(reader["Activo"]);
+                    Mensualidad mensualidad = new Mensualidad
+                    {
+                        ID = 0,
+                        Estudiante = this,
+                        AnioAsociado = anioAsociado
+                    };
+                    this.LstMensualidades = mensualidad.LeerPorEstudiante(strCon);
+                    ok = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return ok;
         }
 
 

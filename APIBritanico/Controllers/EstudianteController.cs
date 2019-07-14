@@ -84,6 +84,40 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/getbyid/1
+        [HttpGet("{id:int},{ci},{anioAsociado:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Estudiante> GetConMensualidades(int id,string ci, int anioAsociado)
+        {
+            try
+            {
+                if ((id > 0 || !ci.Equals(String.Empty)) && anioAsociado > 2000)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = id,
+                        CI = ci
+                    };
+                    estudiante = Fachada.GetEstudianteConMensualidad(estudiante, anioAsociado);
+                    if (estudiante == null)
+                    {
+                        return BadRequest("No existe el estudiante");
+                    }
+                    return estudiante;
+                }
+                else
+                {
+                    return BadRequest("Debe enviar ID o CI y el año de las matriculas");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/getall/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

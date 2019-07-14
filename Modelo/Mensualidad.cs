@@ -457,7 +457,7 @@ namespace BibliotecaBritanico.Modelo
             }
             return lstMensualidades;
         }
-        
+
         public override List<SqlParameter> ObtenerParametros()
         {
             List<SqlParameter> lstParametros = new List<SqlParameter>();
@@ -483,6 +483,64 @@ namespace BibliotecaBritanico.Modelo
         {
             return this.GetAll(strCon);
         }
+
+        public List<Mensualidad> LeerPorEstudiante(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Mensualidad> lstMensualidades = new List<Mensualidad>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            string sql = "";
+            if (this.Estudiante.ID > 0 && this.AnioAsociado > 0)
+            {
+                sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND AnioAsociado = @AnioAsociado";
+                lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
+                lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
+            }
+            else
+            {
+                throw new ValidacionException("Datos insuficientes para buscar la Mensualidad");
+            }
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Mensualidad mensualidad = new Mensualidad();
+                    mensualidad.ID = Convert.ToInt32(reader["ID"]);
+                    mensualidad.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
+                    mensualidad.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                    mensualidad.Estudiante = this.Estudiante;
+                    mensualidad.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    mensualidad.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    mensualidad.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    mensualidad.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    mensualidad.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
+                    mensualidad.MesAsociado = Convert.ToInt32(reader["MesAsociado"]);
+                    mensualidad.AnioAsociado = this.AnioAsociado;
+                    mensualidad.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                    lstMensualidades.Add(mensualidad);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstMensualidades;
+        }
+
 
         #endregion
 

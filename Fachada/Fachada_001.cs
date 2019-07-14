@@ -1399,6 +1399,30 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public Estudiante GetEstudianteConMensualidad(Estudiante estudiante, int anioAsociado)
+        {
+            try
+            {
+                if (estudiante.LeerConMensualidad(Fachada_001.Conexion, anioAsociado))
+                    return estudiante;
+                return null;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en GetEstudianteConMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en GetEstudianteConMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
         #endregion
 
 
