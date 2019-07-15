@@ -138,6 +138,47 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// POST api/mensualidad/crearporanio/
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Mensualidad>> CrearPorAnio([FromBody]List<Mensualidad> data)
+        {
+            try
+            {
+                List<Mensualidad> lstMensualidades = (List<Mensualidad>)data;
+                if (lstMensualidades == null || lstMensualidades.Count < 1)
+                {
+                    return BadRequest("Datos no validos en el request");
+                }
+                List<Mensualidad> lstMensualidadesRet = new List<Mensualidad>();
+                foreach (Mensualidad mensualidad in lstMensualidades)
+                {
+                    mensualidad.Grupo = new Grupo();
+                    mensualidad.Sucursal = new Sucursal();
+                    mensualidad.Funcionario = new Funcionario();
+                    mensualidad.Grupo.ID = mensualidad.GrupoID;
+                    mensualidad.Grupo.Materia.ID = mensualidad.MateriaID;
+                    mensualidad.Funcionario.ID = mensualidad.FuncionarioID;
+                    mensualidad.Sucursal.ID = mensualidad.SucursalID;
+                    lstMensualidadesRet.Add(Fachada.CrearMensualidad(mensualidad));
+                }
+                if (lstMensualidadesRet.Count < 1)
+                {
+                    return BadRequest("No se crearon las mensualidades");
+                }
+                else
+                {
+                    return lstMensualidadesRet;
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// PUT api/mensualidad/modificar/
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]

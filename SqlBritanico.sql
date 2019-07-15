@@ -248,7 +248,8 @@ MateriaID NUMERIC (10) NOT NULL,
 MesAsociado NUMERIC (2) NOT NULL,
 AnioAsociado NUMERIC (4) NOT NULL,
 FuncionarioID NUMERIC (10),
-Precio NUMERIC (10, 2)
+Precio NUMERIC (10, 2),
+Paga BIT
 
 CONSTRAINT PK_Mensualidad PRIMARY KEY (ID),
 CONSTRAINT FK_Mensualidad_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID),

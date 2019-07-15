@@ -28,6 +28,7 @@ namespace BibliotecaBritanico.Modelo
         public Funcionario Funcionario { get; set; }
         public int FuncionarioID { get; set; }
         public decimal Precio { get; set; }
+        public bool Paga { get; set; }
         private static decimal Recargo { get; set; } // se hace privado para hacer un metodo static que si el recargo esta en 0, va a la base y lo carga y devuelve
 
         //un registro unico por estudiante + mes + anio
