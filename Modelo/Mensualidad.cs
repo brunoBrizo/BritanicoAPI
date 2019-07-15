@@ -275,6 +275,7 @@ namespace BibliotecaBritanico.Modelo
                     this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
+                    this.Paga = Convert.ToBoolean(reader["Paga"]);
                     ok = true;
                 }
             }
@@ -301,7 +302,7 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sql = "INSERT INTO Mensualidad VALUES (@SucursalID, @EstudianteID, @FechaHora, @GrupoID, @MateriaID, @MesAsociado, @AnioAsociado, @FuncionarioID, @Precio); SELECT CAST (SCOPE_IDENTITY() AS INT);";
+                string sql = "INSERT INTO Mensualidad VALUES (@SucursalID, @EstudianteID, @FechaHora, @GrupoID, @MateriaID, @MesAsociado, @AnioAsociado, @FuncionarioID, @Precio, @Paga); SELECT CAST (SCOPE_IDENTITY() AS INT);";
                 this.ID = 0;
                 this.ID = Convert.ToInt32(Persistencia.EjecutarScalar(con, sql, CommandType.Text, lstParametros, null));
                 if (this.ID > 0) seGuardo = true;
@@ -322,7 +323,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Mensualidad SET SucursalID = @SucursalID, FechaHora = @FechaHora, GrupoID = @GrupoID, MateriaID = @MateriaID, MesAsociado = @MesAsociado, AnioAsociado = @AnioAsociado, Precio = @Precio WHERE ID = @ID;";
+            string sql = "UPDATE Mensualidad SET SucursalID = @SucursalID, FechaHora = @FechaHora, GrupoID = @GrupoID, MateriaID = @MateriaID, MesAsociado = @MesAsociado, AnioAsociado = @AnioAsociado, Precio = @Precio, Paga = @Paga WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -392,6 +393,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                    mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -440,6 +442,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                    mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -472,6 +475,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
             lstParametros.Add(new SqlParameter("@FuncionarioID", this.FuncionarioID));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
+            lstParametros.Add(new SqlParameter("@Paga", this.Paga));
             return lstParametros;
         }
 
@@ -523,6 +527,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                    mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
