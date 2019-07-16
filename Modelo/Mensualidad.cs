@@ -29,6 +29,7 @@ namespace BibliotecaBritanico.Modelo
         public int FuncionarioID { get; set; }
         public decimal Precio { get; set; }
         public bool Paga { get; set; }
+        public DateTime FechaVencimiento { get; set; }
         private static decimal Recargo { get; set; } // se hace privado para hacer un metodo static que si el recargo esta en 0, va a la base y lo carga y devuelve
 
         //un registro unico por estudiante + mes + anio
@@ -276,6 +277,7 @@ namespace BibliotecaBritanico.Modelo
                     this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
                     this.Paga = Convert.ToBoolean(reader["Paga"]);
+                    this.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
                     ok = true;
                 }
             }
@@ -302,7 +304,7 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sql = "INSERT INTO Mensualidad VALUES (@SucursalID, @EstudianteID, @FechaHora, @GrupoID, @MateriaID, @MesAsociado, @AnioAsociado, @FuncionarioID, @Precio, @Paga); SELECT CAST (SCOPE_IDENTITY() AS INT);";
+                string sql = "INSERT INTO Mensualidad VALUES (@SucursalID, @EstudianteID, @FechaHora, @GrupoID, @MateriaID, @MesAsociado, @AnioAsociado, @FuncionarioID, @Precio, @Paga, @FechaVencimiento); SELECT CAST (SCOPE_IDENTITY() AS INT);";
                 this.ID = 0;
                 this.ID = Convert.ToInt32(Persistencia.EjecutarScalar(con, sql, CommandType.Text, lstParametros, null));
                 if (this.ID > 0) seGuardo = true;
@@ -323,7 +325,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Mensualidad SET SucursalID = @SucursalID, FechaHora = @FechaHora, GrupoID = @GrupoID, MateriaID = @MateriaID, MesAsociado = @MesAsociado, AnioAsociado = @AnioAsociado, Precio = @Precio, Paga = @Paga WHERE ID = @ID;";
+            string sql = "UPDATE Mensualidad SET SucursalID = @SucursalID, FechaHora = @FechaHora, GrupoID = @GrupoID, MateriaID = @MateriaID, MesAsociado = @MesAsociado, AnioAsociado = @AnioAsociado, Precio = @Precio, Paga = @Paga, FechaVencimiento = @FechaVencimiento WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -394,6 +396,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
                     mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
+                    mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -443,6 +446,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
                     mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
+                    mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -476,6 +480,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@FuncionarioID", this.FuncionarioID));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
             lstParametros.Add(new SqlParameter("@Paga", this.Paga));
+            lstParametros.Add(new SqlParameter("@FechaVencimiento", this.FechaVencimiento));
             return lstParametros;
         }
 
@@ -528,6 +533,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
                     mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
+                    mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }

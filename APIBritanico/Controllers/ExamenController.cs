@@ -56,6 +56,46 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/examen/GetByGrupoAnio/2020,1
+        [HttpGet("{anio:int},{grupoID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Examen> GetByGrupoAnio(int anio, int grupoID)
+        {
+            try
+            {
+                if (anio > 2000 && grupoID > 0)
+                {
+                    Grupo grupo = new Grupo
+                    {
+                        ID = grupoID
+                    };
+                    Examen examen = new Examen
+                    {
+                        ID = 0,
+                        GrupoID = grupoID,
+                        AnioAsociado = anio
+                    };
+                    examen.Grupo = grupo;
+                    examen = Fachada.GetExamen(examen);
+                    if (examen == null)
+                    {
+                        return BadRequest("No existe el examen");
+                    }
+                    return examen;
+                }
+                else
+                {
+                    return BadRequest("Año y Grupo invalidos");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/examen/getallbyanio/
         [HttpGet("{anio:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
