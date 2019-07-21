@@ -237,7 +237,7 @@ namespace BibliotecaBritanico.Modelo
             }
             else if (this.GrupoID > 0 && this.AnioAsociado > 0)
             {
-                sql = "SELECT * FROM Examen WHERE GrupoID = @GrupoID AND MateriaID = @MateriaID AND AnioAsociado = @AnioAsociado";
+                sql = "SELECT * FROM Examen WHERE GrupoID = @GrupoID AND AnioAsociado = @AnioAsociado";
                 lstParametros.Add(new SqlParameter("@GrupoID", this.GrupoID));
                 lstParametros.Add(new SqlParameter("@MateriaID", this.MateriaID));
                 lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
@@ -510,7 +510,7 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 con.Open();
-                reader = Persistencia.EjecutarConsulta(con, sql, null, CommandType.Text);
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
                 while (reader.Read())
                 {
                     Examen examen = new Examen();

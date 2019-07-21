@@ -20,10 +20,10 @@ namespace BibliotecaBritanico.Modelo
         public Materia Materia { get; set; }
         public int MateriaID { get; set; }
         [JsonIgnore]
-        public Funcionario Funcionario { get; set; }    
+        public Funcionario Funcionario { get; set; }
         public int FuncionarioID { get; set; }
         public string HoraInicio { get; set; }
-        public string HoraFin { get; set; }        
+        public string HoraFin { get; set; }
         public decimal Precio { get; set; } //deberia ser el precio de la materia, pero puede variar
         public int Anio { get; set; }
         public List<GrupoDia> LstDias { get; set; } = new List<GrupoDia>();
@@ -371,7 +371,16 @@ namespace BibliotecaBritanico.Modelo
                         lstParametrosDia.Add(new SqlParameter("@Dia", grpDia.Dia));
                         lstParametrosDia.Add(new SqlParameter("@ID", this.ID));
                         lstParametrosDia.Add(new SqlParameter("@GrupoDiaID", grpDia.ID));
-                        string sqlDias = "UPDATE GrupoDias SET Dia = @Dia WHERE GrupoID = @ID AND ID = @GrupoDiaID;";
+                        string sqlDias = "";
+                        if (this.ExisteGrupoDia(grpDia, strCon))
+                        {
+                            sqlDias = "UPDATE GrupoDias SET Dia = @Dia WHERE GrupoID = @ID AND ID = @GrupoDiaID;";
+                            
+                        }
+                        else
+                        {
+                            sqlDias = "INSERT INTO GrupoDias VALUES (@ID, @GrupoDiaID, @Dia);";
+                        }
                         Persistencia.EjecutarNoQuery(con, sqlDias, lstParametrosDia, CommandType.Text, tran);
                     }
                     tran.Commit();
@@ -549,6 +558,50 @@ namespace BibliotecaBritanico.Modelo
             return lstGrupo;
         }
 
+        private bool ExisteGrupoDia(GrupoDia dia, string strCon)
+        {
+            {
+                SqlConnection con = new SqlConnection(strCon);
+                bool ok = false;
+                List<SqlParameter> lstParametros = new List<SqlParameter>();
+                SqlDataReader reader = null;
+                string sql = "";
+                if (dia.ID > 0 && this.ID > 0)
+                {
+                    sql = "SELECT * FROM GrupoDias WHERE ID = @ID AND GrupoID = @GrupoID";
+                    lstParametros.Add(new SqlParameter("@ID", dia.ID));
+                    lstParametros.Add(new SqlParameter("@GrupoID", this.ID));
+                }
+                else
+                {
+                    return false;
+                }
+                try
+                {
+                    con.Open();
+                    reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                    while (reader.Read())
+                    {
+                        ok = true;
+                        break;
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    throw ex;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    reader.Close();
+                    con.Close();
+                }
+                return ok;
+            }
+        }
 
         #endregion
 
