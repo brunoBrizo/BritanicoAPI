@@ -96,6 +96,32 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/grupo/getestudiantesbygrupo/
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetEstudiantesByGrupo(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    Grupo grupo = new Grupo
+                    {
+                        ID = id
+                    };
+                    List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesByGrupo(grupo);
+                    return lstEstudiantes;
+                }
+                return BadRequest("ID no puede ser vacio");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// POST api/grupo/crear/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]

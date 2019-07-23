@@ -399,7 +399,8 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
                     estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
                     estudiante.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
-                    estudiante.Convenio.Leer(strCon);
+                    if (estudiante.Convenio.ID > 0)
+                        estudiante.Convenio.Leer(strCon);
                     estudiante.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);

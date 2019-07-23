@@ -356,7 +356,7 @@ namespace BibliotecaBritanico.Modelo
             SqlTransaction tran = null;
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Grupo SET SucursalID = @SucursalID, FuncionarioID = @FuncionarioID, HoraInicio = @HoraInicio, HoraFin = @HoraFin, Precio = @Precio, Anio = @Anio WHERE ID = @ID AND MateriaID = @MateriaID;";
+            string sql = "UPDATE Grupo SET MateriaID = @MateriaID, SucursalID = @SucursalID, FuncionarioID = @FuncionarioID, HoraInicio = @HoraInicio, HoraFin = @HoraFin, Precio = @Precio, Anio = @Anio WHERE ID = @ID;";
             try
             {
                 con.Open();
@@ -375,7 +375,7 @@ namespace BibliotecaBritanico.Modelo
                         if (this.ExisteGrupoDia(grpDia, strCon))
                         {
                             sqlDias = "UPDATE GrupoDias SET Dia = @Dia WHERE GrupoID = @ID AND ID = @GrupoDiaID;";
-                            
+
                         }
                         else
                         {
@@ -391,7 +391,14 @@ namespace BibliotecaBritanico.Modelo
             {
                 tran.Rollback();
                 tran.Dispose();
-                throw ex;
+                if (ex.Message.Contains("FK_Estudiante_Grupo"))
+                {
+                    throw new ValidacionException("No se puede modificar la materia del grupo porque tiene estudiantes asignados");
+                }
+                else
+                {
+                    throw ex;
+                }
             }
             catch (Exception ex)
             {
@@ -557,6 +564,67 @@ namespace BibliotecaBritanico.Modelo
             }
             return lstGrupo;
         }
+
+        public List<Estudiante> GetEstudiantes(string strCon)
+        {
+            if (this.ID < 1)
+            {
+                throw new ValidacionException("ID del grupo no puede ser vacio");
+            }
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiantes = new List<Estudiante>();
+            string sql = "SELECT * FROM Estudiante WHERE GrupoID = @ID;";
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["ID"]);
+                    estudiante.Nombre = reader["Nombre"].ToString().Trim();
+                    estudiante.TipoDocumento = (TipoDocumento)Convert.ToInt32(reader["TipoDocumento"]);
+                    estudiante.CI = reader["CI"].ToString().Trim();
+                    estudiante.Tel = reader["Tel"].ToString().Trim();
+                    estudiante.Email = reader["Email"].ToString().Trim();
+                    estudiante.Direccion = reader["Direccion"].ToString().Trim();
+                    estudiante.FechaNac = Convert.ToDateTime(reader["FechaNac"]);
+                    estudiante.Alergico = Convert.ToBoolean(reader["Alergico"]);
+                    estudiante.Alergias = reader["Alergias"].ToString().Trim();
+                    estudiante.ContactoAlternativoUno = reader["ContactoAlternativoUno"].ToString().Trim();
+                    estudiante.ContactoAlternativoUnoTel = reader["ContactoAlternativoUnoTel"].ToString().Trim();
+                    estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
+                    estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
+                    estudiante.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
+                    if (estudiante.Convenio.ID > 0)
+                        estudiante.Convenio.Leer(strCon);
+                    estudiante.Grupo.ID = this.ID;
+                    estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.GrupoID = this.ID;
+                    estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    lstEstudiantes.Add(estudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstEstudiantes;
+        }
+
 
         private bool ExisteGrupoDia(GrupoDia dia, string strCon)
         {

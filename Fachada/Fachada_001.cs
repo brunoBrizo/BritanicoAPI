@@ -2235,7 +2235,6 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
-
         public Grupo GetGrupo(Grupo grupo)
         {
             try
@@ -2259,6 +2258,30 @@ namespace BibliotecaBritanico.Fachada
                 throw ex;
             }
         }
+
+        public List<Estudiante> ObtenerEstudiantesByGrupo(Grupo grupo)
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = grupo.GetEstudiantes(Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Grupo", "Error en ObtenerEstudiantesByGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Grupo", "Error en ObtenerEstudiantesByGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
 
         #endregion
 
