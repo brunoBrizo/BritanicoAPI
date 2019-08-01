@@ -95,7 +95,16 @@ namespace APIBritanico.Controllers
                 }
                 else
                 {
-                    return matricula;
+                    Estudiante estudiante = new Estudiante
+                    {
+                        GrupoID = matricula.GrupoID,
+                        MateriaID = matricula.MateriaID,
+                        ID = matricula.Estudiante.ID
+                    };
+                    if (Fachada.ModificarEstudianteGrupo(estudiante))
+                        return matricula;
+                    else
+                        return BadRequest("Error al actualizar el Grupo del estudiante. Puede hacerlo manualmente desde el listado de Estudiantes");
                 }
             }
             catch (Exception ex)

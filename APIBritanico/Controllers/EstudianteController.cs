@@ -50,6 +50,39 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/getexamenpendiente/1
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<ExamenEstudiante> GetExamenPendiente(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = id
+                    };
+                    ExamenEstudiante examen = Fachada.GetExamenPendienteByEstudiante(estudiante);
+                    if (examen == null)
+                    {
+                        return BadRequest("No existen examenes pendientes");
+                    }
+                    return examen;
+                }
+                else
+                {
+                    return BadRequest("ID no puede ser vacio");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/getbycedula/131515
         [HttpGet("{ci}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

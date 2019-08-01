@@ -21,6 +21,7 @@ namespace BibliotecaBritanico.Modelo
         public int AnioAsociado { get; set; }
         public int NotaMinima { get; set; }
         public decimal Precio { get; set; }
+        public bool Calificado { get; set; }
 
         //debe haber un registro por grupo-año de esta clase
 
@@ -260,6 +261,7 @@ namespace BibliotecaBritanico.Modelo
                     this.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
                     this.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
+                    this.Calificado = Convert.ToBoolean(reader["Calificado"]);
                     ok = true;
                 }
             }
@@ -290,7 +292,7 @@ namespace BibliotecaBritanico.Modelo
                 if (this.ID > 0)
                 {
                     List<SqlParameter> lstParametros = this.ObtenerParametros();
-                    string sql = "INSERT INTO Examen VALUES (@ID, @GrupoID, @MateriaID, @FechaHora, @AnioAsociado, @NotaMinima, @Precio);";
+                    string sql = "INSERT INTO Examen VALUES (@ID, @GrupoID, @MateriaID, @FechaHora, @AnioAsociado, @NotaMinima, @Precio, @Calificado);";
                     int ret = 0;
                     ret = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null));
                     if (ret > 0) seGuardo = true;
@@ -312,7 +314,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Examen SET FechaHora = @FechaHora, AnioAsociado = @AnioAsociado, NotaMinima = @NotaMinima, Precio = @Precio WHERE ID = @ID AND GrupoID = @GrupoID;";
+            string sql = "UPDATE Examen SET FechaHora = @FechaHora, AnioAsociado = @AnioAsociado, NotaMinima = @NotaMinima, Precio = @Precio, Calificado = @Calificado WHERE ID = @ID AND GrupoID = @GrupoID;";
             try
             {
                 int res = 0;
@@ -378,6 +380,7 @@ namespace BibliotecaBritanico.Modelo
                     examen.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
                     examen.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
                     examen.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examen.Calificado = Convert.ToBoolean(reader["Calificado"]);
                     lstExamenes.Add(examen);
                 }
             }
@@ -407,6 +410,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
             lstParametros.Add(new SqlParameter("@NotaMinima", this.NotaMinima));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
+            lstParametros.Add(new SqlParameter("@Calificado", this.Calificado));
             return lstParametros;
         }
 
@@ -437,6 +441,7 @@ namespace BibliotecaBritanico.Modelo
                     examen.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
                     examen.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
                     examen.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examen.Calificado = Convert.ToBoolean(reader["Calificado"]);
                     lstExamenes.Add(examen);
                 }
             }
@@ -480,6 +485,7 @@ namespace BibliotecaBritanico.Modelo
                     examen.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
                     examen.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
                     examen.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examen.Calificado = Convert.ToBoolean(reader["Calificado"]);
                     lstExamenes.Add(examen);
                 }
             }
@@ -523,6 +529,7 @@ namespace BibliotecaBritanico.Modelo
                     examen.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
                     examen.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
                     examen.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examen.Calificado = Convert.ToBoolean(reader["Calificado"]);
                     lstExamenes.Add(examen);
                 }
             }

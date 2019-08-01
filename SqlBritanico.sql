@@ -268,7 +268,7 @@ CREATE TABLE Pago (
 ID NUMERIC (10) IDENTITY (1, 1),
 SucursalID NUMERIC (10),
 FechaHora DATETIME,
-Concepto VARCHAR (100),
+Concepto NUMERIC (2),
 Monto NUMERIC (12, 2),
 FuncionarioID NUMERIC (10),
 Observacion VARCHAR (200)
@@ -305,7 +305,8 @@ MateriaID NUMERIC (10) NOT NULL,
 FechaHora DATETIME,
 AnioAsociado NUMERIC (4),
 NotaMinima NUMERIC (2),
-Precio NUMERIC (10, 2)
+Precio NUMERIC (10, 2),
+Calificado BIT NOT NULL
 
 CONSTRAINT PK_Examen PRIMARY KEY (ID, GrupoID),
 CONSTRAINT FK_Examen_GrupoID FOREIGN KEY (GrupoID, MateriaID) REFERENCES Grupo (ID, MateriaID),

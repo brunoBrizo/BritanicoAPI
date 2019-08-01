@@ -150,6 +150,28 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
+        public static ExamenEstudiante GetExamenPendientePorEstudiante(List<ExamenEstudiante> lstExamenEstudiante)
+        {
+            try
+            {
+                ExamenEstudiante ultExamen = new ExamenEstudiante();
+                lstExamenEstudiante.OrderByDescending(e => e.Examen.AnioAsociado);
+                foreach(ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                {
+                    ultExamen = examenEstudiante;
+                    break;
+                }
+                if (!ultExamen.Aprobado)
+                {
+                    return ultExamen;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
         #region Persistencia
@@ -551,6 +573,56 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
                     examenEstudiante.Examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
                     examenEstudiante.Estudiante.ID = Convert.ToInt32(reader["EstudianteID"]);
+                    examenEstudiante.FechaInscripcion = Convert.ToDateTime(reader["FechaInscripcion"]);
+                    examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);
+                    examenEstudiante.NotaFinalLetra = reader["NotaFinalLetra"].ToString();
+                    examenEstudiante.Aprobado = Convert.ToBoolean(reader["Aprobado"]);
+                    examenEstudiante.CantCuotas = Convert.ToInt32(reader["CantCuotas"]);
+                    examenEstudiante.FormaPago = (FormaPago)Convert.ToInt32(reader["FormaPago"]);
+                    examenEstudiante.Pago = Convert.ToBoolean(reader["Pago"]);
+                    examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+
+                    examenEstudiante.LeerCuotas(strCon);
+                    lstExamenes.Add(examenEstudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstExamenes;
+        }
+
+        public static List<ExamenEstudiante> GetByEstudiante(Estudiante estudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<ExamenEstudiante> lstExamenes = new List<ExamenEstudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
+            string sql = "SELECT * FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    ExamenEstudiante examenEstudiante = new ExamenEstudiante();
+                    examenEstudiante.ID = Convert.ToInt32(reader["ID"]);
+                    examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
+                    examenEstudiante.Examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Estudiante = estudiante;
                     examenEstudiante.FechaInscripcion = Convert.ToDateTime(reader["FechaInscripcion"]);
                     examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);
                     examenEstudiante.NotaFinalLetra = reader["NotaFinalLetra"].ToString();

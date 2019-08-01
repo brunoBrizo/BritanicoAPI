@@ -691,6 +691,32 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
+        public bool ModificarGrupo(int grupoID, int materiaID, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@GrupoID", grupoID));
+            lstParametros.Add(new SqlParameter("@MateriaID", materiaID));
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            string sql = "UPDATE Estudiante SET GrupoID = @GrupoID, MateriaID = @MateriaID WHERE ID = @ID;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
 
         #endregion
 

@@ -1423,6 +1423,56 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public ExamenEstudiante GetExamenPendienteByEstudiante(Estudiante estudiante)
+        {
+            try
+            {
+                List<ExamenEstudiante> lstExamenEstudiante = ExamenEstudiante.GetByEstudiante(estudiante, Fachada_001.Conexion);
+                if (lstExamenEstudiante.Count > 0)
+                {
+                    return ExamenEstudiante.GetExamenPendientePorEstudiante(lstExamenEstudiante);
+                }
+                return null;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en GetExamenPendienteByEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en GetExamenPendienteByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
+        public bool ModificarEstudianteGrupo(Estudiante estudiante)
+        {
+            try
+            {
+                if (estudiante.ModificarGrupo(estudiante.GrupoID, estudiante.MateriaID, Fachada_001.Conexion))
+                    return true;
+                return false;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ModificarEstudianteGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                string errorMsg = "Error al actualizar el Grupo del estudiante. Puede hacerlo manualmente desde el listado de Estudiantes";
+                throw new Exception(errorMsg);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ModificarEstudianteGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                string errorMsg = "Error al actualizar el Grupo del estudiante. Puede hacerlo manualmente desde el listado de Estudiantes";
+                throw new Exception(errorMsg);
+            }
+        }
+
+
         #endregion
 
 
