@@ -170,21 +170,25 @@ namespace APIBritanico.Controllers
 
 
         //// POST api/funcionario/olvidemipassword/
-        [HttpPost("{ci}")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<string>> OlvideMiPassword(string ci)
+        public async Task<ActionResult<string>> OlvideMiPassword([FromBody]Funcionario data)
         {
             try
             {
-                if (ci.Equals(String.Empty))
+                Funcionario funcionario = (Funcionario)data;
+                if (funcionario == null)
+                {
+                    return BadRequest("Datos no validos en el request");
+                }
+                if (funcionario.CI.Equals(String.Empty))
                 {
                     return BadRequest("Cedula no puede ser vacia");
                 }
-                Funcionario funcionario = new Funcionario
-                {
-                    CI = ci
-                };
+                if (funcionario.Sucursal == null)
+                    funcionario.Sucursal = new Sucursal();
+                funcionario.Sucursal.ID = funcionario.SucursalID;
                 return await Fachada.OlvideMiPassword(funcionario);
             }
             catch (Exception ex)
