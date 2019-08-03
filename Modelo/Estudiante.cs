@@ -717,6 +717,114 @@ namespace BibliotecaBritanico.Modelo
             return SeModifico;
         }
 
+        public static List<Estudiante> LeerByConvenio(Convenio convenio, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiantes = new List<Estudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ConvenioID", convenio.ID));
+            string sql = "SELECT * FROM Estudiante WHERE ConvenioID = @ConvenioID;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["ID"]);
+                    estudiante.Nombre = reader["Nombre"].ToString().Trim();
+                    estudiante.TipoDocumento = (TipoDocumento)Convert.ToInt32(reader["TipoDocumento"]);
+                    estudiante.CI = reader["CI"].ToString().Trim();
+                    estudiante.Tel = reader["Tel"].ToString().Trim();
+                    estudiante.Email = reader["Email"].ToString().Trim();
+                    estudiante.Direccion = reader["Direccion"].ToString().Trim();
+                    estudiante.FechaNac = Convert.ToDateTime(reader["FechaNac"]);
+                    estudiante.Alergico = Convert.ToBoolean(reader["Alergico"]);
+                    estudiante.Alergias = reader["Alergias"].ToString().Trim();
+                    estudiante.ContactoAlternativoUno = reader["ContactoAlternativoUno"].ToString().Trim();
+                    estudiante.ContactoAlternativoUnoTel = reader["ContactoAlternativoUnoTel"].ToString().Trim();
+                    estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
+                    estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
+                    estudiante.Convenio = convenio;
+                    estudiante.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    lstEstudiantes.Add(estudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstEstudiantes;
+        }
+
+        public static List<Estudiante> LeerEstudiantesConConvenio(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiantes = new List<Estudiante>();
+            string sql = "SELECT * FROM Estudiante WHERE ConvenioID > 0;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, null, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["ID"]);
+                    estudiante.Nombre = reader["Nombre"].ToString().Trim();
+                    estudiante.TipoDocumento = (TipoDocumento)Convert.ToInt32(reader["TipoDocumento"]);
+                    estudiante.CI = reader["CI"].ToString().Trim();
+                    estudiante.Tel = reader["Tel"].ToString().Trim();
+                    estudiante.Email = reader["Email"].ToString().Trim();
+                    estudiante.Direccion = reader["Direccion"].ToString().Trim();
+                    estudiante.FechaNac = Convert.ToDateTime(reader["FechaNac"]);
+                    estudiante.Alergico = Convert.ToBoolean(reader["Alergico"]);
+                    estudiante.Alergias = reader["Alergias"].ToString().Trim();
+                    estudiante.ContactoAlternativoUno = reader["ContactoAlternativoUno"].ToString().Trim();
+                    estudiante.ContactoAlternativoUnoTel = reader["ContactoAlternativoUnoTel"].ToString().Trim();
+                    estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
+                    estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
+                    estudiante.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
+                    if (estudiante.Convenio.ID > 0)
+                        estudiante.Convenio.Leer(strCon);
+                    estudiante.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    lstEstudiantes.Add(estudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstEstudiantes;
+        }
+
 
         #endregion
 

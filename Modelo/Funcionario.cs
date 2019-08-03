@@ -27,6 +27,7 @@ namespace BibliotecaBritanico.Modelo
         public string Clave { get; set; }
         public bool Activo { get; set; }
         public FuncionarioTipo TipoFuncionario { get; set; }
+        public bool DebeModificarPassword { get; set; }
 
 
         public Funcionario() { }
@@ -188,24 +189,24 @@ namespace BibliotecaBritanico.Modelo
             return false;
         }
 
-        public static Funcionario Login(Funcionario funcionario, string strCon)
+        public Funcionario Login(string strCon)
         {
             try
             {
                 Funcionario funcionarioAux = new Funcionario
                 {
-                    CI = funcionario.CI,
-                    Clave = funcionario.Clave
+                    CI = this.CI,
+                    Clave = this.Clave
                 };
                 if (funcionarioAux.Leer(strCon))
                 {
-                    if (funcionarioAux.Clave.Equals(funcionario.Clave))
+                    if (funcionarioAux.Clave.Equals(this.Clave))
                     {
+                        this.ModificarSucursal(this.SucursalID, strCon);
                         return funcionarioAux;
                     }
                 }
                 return null;
-
             }
             catch (SqlException ex)
             {
@@ -241,6 +242,62 @@ namespace BibliotecaBritanico.Modelo
             }
         }
 
+        public async Task<bool> OlvideMiPassword(string strCon)
+        {
+            try
+            {
+                string passwordNueva = this.GenerarNuevaPassword();
+                this.Clave = passwordNueva;
+                this.ModificarPassword(true, strCon);
+                Email email = new Email();
+                email.Asunto = "Recuperación de contraseña";
+                email.DestinatarioEmail = this.Email;
+                email.DestinatarioNombre = this.Nombre;
+                email.CuerpoHTML = "Su nueva contraseña es: <b>" + this.Clave + "</b><br/>Deberá modificarla cuando entre al sistema.";
+                email.FechaHora = DateTime.Now;
+                email.Enviado = true;
+
+                if (email.Guardar(strCon))
+                {
+                    //datos de email
+                    Parametro paramEmail = new Parametro
+                    {
+                        ID = 1
+                    };
+                    paramEmail.Leer(strCon);
+                    Parametro paramClave = new Parametro
+                    {
+                        ID = 3
+                    };
+                    paramClave.Leer(strCon);
+                    await email.Enviar(strCon, paramEmail, paramClave);
+                    return true;
+                }
+
+                return false;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private string GenerarNuevaPassword()
+        {
+            long numeroRandom = 0;
+            Random random = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+            numeroRandom = random.Next(1000, 999999);
+            Guid guid = Guid.NewGuid();
+            string password = Convert.ToBase64String(guid.ToByteArray());
+            password = password.Replace("=", "").Replace("+", "").Replace("/", "");
+            password = password.Substring(0, 6);
+            password = password + numeroRandom.ToString().Trim();
+            return password;
+        }
 
         #region Persistencia
 
@@ -291,6 +348,7 @@ namespace BibliotecaBritanico.Modelo
                         this.Clave = reader["Clave"].ToString();
                     this.Activo = Convert.ToBoolean(reader["Activo"]);
                     this.TipoFuncionario = (FuncionarioTipo)Convert.ToInt32(reader["TipoFuncionario"]);
+                    this.DebeModificarPassword = Convert.ToBoolean(reader["DebeModificarPassword"]);
                     ok = true;
                 }
             }
@@ -321,7 +379,7 @@ namespace BibliotecaBritanico.Modelo
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
                 lstParametros.Add(new SqlParameter("@Clave", this.Clave));
                 this.Clave = claveDesencriptada;
-                string sql = "INSERT INTO Funcionario VALUES (@SucursalID, @CI, @Email, @Nombre, @Telefono, @TelefonoAux, @Direccion, @FechaNac, @Clave, @Activo, @TipoFuncionario); SELECT CAST (SCOPE_IDENTITY() AS INT);";
+                string sql = "INSERT INTO Funcionario VALUES (@SucursalID, @CI, @Email, @Nombre, @Telefono, @TelefonoAux, @Direccion, @FechaNac, @Clave, @Activo, @TipoFuncionario, @DebeModificarPassword); SELECT CAST (SCOPE_IDENTITY() AS INT);";
                 this.ID = 0;
                 this.ID = Convert.ToInt32(Persistencia.EjecutarScalar(con, sql, CommandType.Text, lstParametros, null));
                 if (this.ID > 0) seGuardo = true;
@@ -344,7 +402,7 @@ namespace BibliotecaBritanico.Modelo
             this.Clave = this.EncriptarPassword(this.Clave);
             List<SqlParameter> lstParametros = this.ObtenerParametros();
             lstParametros.Add(new SqlParameter("@Clave", this.Clave));
-            string sql = "UPDATE Funcionario SET SucursalID = @SucursalID, Email = @Email, Nombre = @Nombre, Telefono = @Telefono, TelefonoAux = @TelefonoAux, Direccion = @Direccion, FechaNac = @FechaNac, Clave = @Clave, Activo = @Activo, TipoFuncionario = @TipoFuncionario WHERE ID = @ID;";
+            string sql = "UPDATE Funcionario SET SucursalID = @SucursalID, Email = @Email, Nombre = @Nombre, Telefono = @Telefono, TelefonoAux = @TelefonoAux, Direccion = @Direccion, FechaNac = @FechaNac, Clave = @Clave, Activo = @Activo, TipoFuncionario = @TipoFuncionario, DebeModificarPassword = @DebeModificarPassword WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -415,6 +473,7 @@ namespace BibliotecaBritanico.Modelo
                     func.Clave = func.DesencriptarPassword(reader["Clave"].ToString());
                     func.Activo = Convert.ToBoolean(reader["Activo"]);
                     func.TipoFuncionario = (FuncionarioTipo)Convert.ToInt32(reader["TipoFuncionario"]);
+                    func.DebeModificarPassword = Convert.ToBoolean(reader["DebeModificarPassword"]);
                     lstFuncionarios.Add(func);
                 }
             }
@@ -448,6 +507,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@FechaNac", this.FechaNac));
             lstParametros.Add(new SqlParameter("@Activo", this.Activo));
             lstParametros.Add(new SqlParameter("@TipoFuncionario", this.TipoFuncionario));
+            lstParametros.Add(new SqlParameter("@DebeModificarPassword", this.DebeModificarPassword));
             return lstParametros;
         }
 
@@ -490,6 +550,7 @@ namespace BibliotecaBritanico.Modelo
                     func.Clave = func.DesencriptarPassword(reader["Clave"].ToString());
                     func.Activo = Convert.ToBoolean(reader["Activo"]);
                     func.TipoFuncionario = (FuncionarioTipo)Convert.ToInt32(reader["TipoFuncionario"]);
+                    func.DebeModificarPassword = Convert.ToBoolean(reader["DebeModificarPassword"]);
                     lstFuncionarios.Add(func);
                 }
             }
@@ -508,6 +569,67 @@ namespace BibliotecaBritanico.Modelo
             }
             return lstFuncionarios;
         }
+
+        private bool ModificarPassword(bool modificarPassword, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            string claveEncriptada = this.EncriptarPassword(this.Clave);
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            lstParametros.Add(new SqlParameter("@Clave", claveEncriptada));
+            if (modificarPassword)
+            {
+                lstParametros.Add(new SqlParameter("@DebeModificarPassword", true));
+            }
+            else
+            {
+                lstParametros.Add(new SqlParameter("@DebeModificarPassword", false));
+            }
+            string sql = "UPDATE Funcionario SET Clave = @Clave, DebeModificarPassword = @DebeModificarPassword WHERE ID = @ID;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
+        public bool ModificarSucursal(int sucursalID, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            this.Clave = this.EncriptarPassword(this.Clave);
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@SucursalID", sucursalID));
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            string sql = "UPDATE Funcionario SET SucursalID = @SucursalID WHERE ID = @ID;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
 
         #endregion
     }

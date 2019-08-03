@@ -549,6 +549,43 @@ namespace BibliotecaBritanico.Modelo
             return lstExamenes;
         }
 
+        public List<Estudiante> GetListaEstudiantes(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiante = new List<Estudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            string sql = "SELECT DISTINCT EstudianteID FROM ExamenEstudiante WHERE ExamenID = @ID;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["EstudianteID"]);
+                    estudiante.Leer(strCon);
+                    lstEstudiante.Add(estudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstEstudiante;
+        }
+
+
         #endregion
 
 

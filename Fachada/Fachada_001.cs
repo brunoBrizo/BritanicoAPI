@@ -1472,6 +1472,52 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public List<Estudiante> ObtenerEstudiantesByConvenio(Convenio convenio)
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Estudiante.LeerByConvenio(convenio, Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesByConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesByConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
+        public List<Estudiante> ObtenerEstudiantesConConvenio()
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Estudiante.LeerEstudiantesConConvenio(Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesConConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesConConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
 
         #endregion
 
@@ -1635,11 +1681,11 @@ namespace BibliotecaBritanico.Fachada
         {
             try
             {
-                if (!Herramientas.ValidarCedula(funcionario.CI))
-                {
-                    throw new ValidacionException("Cedula invalida");
-                }
-                return Funcionario.Login(funcionario, Fachada_001.Conexion);
+                //if (!Herramientas.ValidarCedula(funcionario.CI))
+                //{
+                //    throw new ValidacionException("Cedula invalida");
+                //}
+                return funcionario.Login(Fachada_001.Conexion);
             }
             catch (ValidacionException ex)
             {
@@ -1648,7 +1694,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en Login | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error accediendo a la base de datos durante el Login. Inténtelo nuevamente.");
             }
             catch (Exception ex)
             {
@@ -1656,6 +1702,34 @@ namespace BibliotecaBritanico.Fachada
                 throw ex;
             }
         }
+
+        public async Task<string> OlvideMiPassword(Funcionario funcionario)
+        {
+            try
+            {
+                if (funcionario.Leer(Fachada_001.Conexion))
+                {
+                    await funcionario.OlvideMiPassword(Fachada_001.Conexion);
+                    return funcionario.Email;
+                }
+                throw new ValidacionException("No existe el funcionario");
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Funcionario", "Error en OlvideMiPassword | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Funcionario", "Error en OlvideMiPassword | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
 
 
         #endregion
@@ -2150,6 +2224,30 @@ namespace BibliotecaBritanico.Fachada
                 throw ex;
             }
         }
+
+        public List<Estudiante> ObtenerEstudiantesByExamen(Examen examen)
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = examen.GetListaEstudiantes(Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Examen", "Error en ObtenerEstudiantesByExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Examen", "Error en ObtenerEstudiantesByExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
 
         #endregion
 

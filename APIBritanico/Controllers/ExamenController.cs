@@ -140,6 +140,32 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/examen/getestudiantesbyexamen/
+        [HttpGet("{examenID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetEstudiantesByExamen(int examenID)
+        {
+            try
+            {
+                if (examenID < 1)
+                {
+                    return BadRequest("ID de examen no puede ser vacio");
+                }
+                Examen examen = new Examen
+                {
+                    ID = examenID
+                };
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesByExamen(examen);
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// POST api/examen/crear/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]

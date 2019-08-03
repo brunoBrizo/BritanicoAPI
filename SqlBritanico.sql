@@ -123,7 +123,8 @@ Direccion VARCHAR (30),
 FechaNac DATETIME,
 Clave VARCHAR (500),
 Activo BIT NOT NULL,
-TipoFuncionario NUMERIC (1)
+TipoFuncionario NUMERIC (1),
+DebeModificarPassword BIT NOT NULL
 
 CONSTRAINT PK_Funcionario PRIMARY KEY (ID),
 CONSTRAINT FK_Funcionario_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID),

@@ -115,6 +115,10 @@ namespace APIBritanico.Controllers
                 {
                     return BadRequest("Clave no puede ser vacia");
                 }
+                if (funcionario.SucursalID < 1)
+                {
+                    return BadRequest("Debe seleccionar una sucursal para loguearse");
+                }
                 funcionario = Fachada.Login(funcionario);
                 if (funcionario == null)
                 {
@@ -157,6 +161,31 @@ namespace APIBritanico.Controllers
                 {
                     return funcionario;
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// POST api/funcionario/olvidemipassword/
+        [HttpPost("{ci}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<string>> OlvideMiPassword(string ci)
+        {
+            try
+            {
+                if (ci.Equals(String.Empty))
+                {
+                    return BadRequest("Cedula no puede ser vacia");
+                }
+                Funcionario funcionario = new Funcionario
+                {
+                    CI = ci
+                };
+                return await Fachada.OlvideMiPassword(funcionario);
             }
             catch (Exception ex)
             {

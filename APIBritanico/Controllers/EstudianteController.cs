@@ -196,6 +196,50 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/getbyconvenio/
+        [HttpGet("{convenioID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetByConvenio(int convenioID)
+        {
+            try
+            {
+                if (convenioID < 1)
+                {
+                    return BadRequest("ID de convenio no puede ser vacío");
+                }
+                Convenio convenio = new Convenio
+                {
+                    ID = convenioID
+                };
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesByConvenio(convenio);
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/getallconconvenio/
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetAllConConvenio()
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesConConvenio();
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/getallactivos/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
