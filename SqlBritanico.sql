@@ -183,7 +183,8 @@ ContactoAlternativoDosTel VARCHAR (30),
 ConvenioID NUMERIC (10),
 GrupoID NUMERIC (10),
 MateriaID NUMERIC (10),
-Activo BIT NOT NULL
+Activo BIT NOT NULL,
+Validado BIT NOT NULL
 
 CONSTRAINT PK_Estudiante PRIMARY KEY (ID),
 CONSTRAINT FK_Estudiante_ConvenioID FOREIGN KEY (ConvenioID) REFERENCES Convenio (ID),

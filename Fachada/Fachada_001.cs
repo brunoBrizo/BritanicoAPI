@@ -1352,6 +1352,30 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public List<Estudiante> ObtenerEstudiantesNoValidados()
+        {
+            try
+            {
+                Estudiante estudiante = new Estudiante();
+                List<Estudiante> lstEstudiantes = estudiante.GetAllNoValidados(Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesNoValidados | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesNoValidados | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
         public List<Estudiante> ObtenerEstudianteByNombre(Estudiante estudiante)
         {
             try
@@ -1395,6 +1419,28 @@ namespace BibliotecaBritanico.Fachada
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw ex;
+            }
+        }
+
+        public bool ExisteEstudiante(Estudiante estudiante)
+        {
+            try
+            {
+                return Estudiante.ExisteEstudiante(estudiante, Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ExisteEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ExisteEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw ex;
             }
         }

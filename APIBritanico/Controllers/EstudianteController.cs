@@ -117,6 +117,35 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/ExisteEstudiante/131515
+        [HttpGet("{ci}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> ExisteEstudiante(string ci)
+        {
+            try
+            {
+                if (!ci.Equals(String.Empty))
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = 0,
+                        CI = ci
+                    };
+                    return Fachada.ExisteEstudiante(estudiante);
+                }
+                else
+                {
+                    return BadRequest("Cedula no puede ser vacía");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/getbyid/1
         [HttpGet("{id:int},{ci},{anioAsociado:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -249,6 +278,24 @@ namespace APIBritanico.Controllers
             try
             {
                 List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesActivos();
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/GetAllNoValidados/
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetAllNoValidados()
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesNoValidados();
                 return lstEstudiantes;
             }
             catch (Exception ex)

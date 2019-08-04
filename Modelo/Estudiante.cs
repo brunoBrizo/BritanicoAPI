@@ -33,6 +33,7 @@ namespace BibliotecaBritanico.Modelo
         public int MateriaID { get; set; }
         public bool Activo { get; set; }
         public List<Mensualidad> LstMensualidades { get; set; } = new List<Mensualidad>();
+        public bool Validado { get; set; }
 
 
         public Estudiante()
@@ -279,6 +280,7 @@ namespace BibliotecaBritanico.Modelo
                     this.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     this.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     this.Activo = Convert.ToBoolean(reader["Activo"]);
+                    this.Validado = Convert.ToBoolean(reader["Validado"]);
                     ok = true;
                 }
             }
@@ -305,7 +307,7 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sql = "INSERT INTO Estudiante VALUES (@Nombre, @TipoDocumento, @CI, @Tel, @Email, @Direccion, @FechaNac, @Alergico, @Alergias, @ContactoAlternativoUno, @ContactoAlternativoUnoTel, @ContactoAlternativoDos, @ContactoAlternativoDosTel, @ConvenioID, @GrupoID, @MateriaID, @Activo); SELECT CAST (SCOPE_IDENTITY() AS INT);";
+                string sql = "INSERT INTO Estudiante VALUES (@Nombre, @TipoDocumento, @CI, @Tel, @Email, @Direccion, @FechaNac, @Alergico, @Alergias, @ContactoAlternativoUno, @ContactoAlternativoUnoTel, @ContactoAlternativoDos, @ContactoAlternativoDosTel, @ConvenioID, @GrupoID, @MateriaID, @Activo, @Validado); SELECT CAST (SCOPE_IDENTITY() AS INT);";
                 this.ID = 0;
                 this.ID = Convert.ToInt32(Persistencia.EjecutarScalar(con, sql, CommandType.Text, lstParametros, null));
                 if (this.ID > 0) seGuardo = true;
@@ -326,7 +328,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Estudiante SET Nombre = @Nombre, Tel = @Tel, Email = @Email, Direccion = @Direccion, FechaNac = @FechaNac, Alergico = @Alergico, Alergias = @Alergias, ContactoAlternativoUno = @ContactoAlternativoUno, ContactoAlternativoUnoTel = @ContactoAlternativoUnoTel, ContactoAlternativoDos = @ContactoAlternativoDos, ContactoAlternativoDosTel = @ContactoAlternativoDosTel, ConvenioID = @ConvenioID, GrupoID = @GrupoID, MateriaID = @MateriaID, Activo = @Activo WHERE ID = @ID;";
+            string sql = "UPDATE Estudiante SET Nombre = @Nombre, Tel = @Tel, Email = @Email, Direccion = @Direccion, FechaNac = @FechaNac, Alergico = @Alergico, Alergias = @Alergias, ContactoAlternativoUno = @ContactoAlternativoUno, ContactoAlternativoUnoTel = @ContactoAlternativoUnoTel, ContactoAlternativoDos = @ContactoAlternativoDos, ContactoAlternativoDosTel = @ContactoAlternativoDosTel, ConvenioID = @ConvenioID, GrupoID = @GrupoID, MateriaID = @MateriaID, Activo = @Activo, Validado = @Validado WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -375,7 +377,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Estudiante> lstEstudiantes = new List<Estudiante>();
-            string sql = "SELECT * FROM Estudiante;";
+            string sql = "SELECT * FROM Estudiante WHERE Validado = 1;";
             SqlDataReader reader = null;
             try
             {
@@ -406,6 +408,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -429,7 +432,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Estudiante> lstEstudiantes = new List<Estudiante>();
-            string sql = "SELECT * FROM Estudiante WHERE Activo = 1;";
+            string sql = "SELECT * FROM Estudiante WHERE Activo = 1 AND Validado = 1;";
             SqlDataReader reader = null;
             try
             {
@@ -459,6 +462,61 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
+                    lstEstudiantes.Add(estudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstEstudiantes;
+        }
+
+        public List<Estudiante> GetAllNoValidados(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiantes = new List<Estudiante>();
+            string sql = "SELECT * FROM Estudiante WHERE Validado = 0;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, null, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["ID"]);
+                    estudiante.Nombre = reader["Nombre"].ToString().Trim();
+                    estudiante.TipoDocumento = (TipoDocumento)Convert.ToInt32(reader["TipoDocumento"]);
+                    estudiante.CI = reader["CI"].ToString().Trim();
+                    estudiante.Tel = reader["Tel"].ToString().Trim();
+                    estudiante.Email = reader["Email"].ToString().Trim();
+                    estudiante.Direccion = reader["Direccion"].ToString().Trim();
+                    estudiante.FechaNac = Convert.ToDateTime(reader["FechaNac"]);
+                    estudiante.Alergico = Convert.ToBoolean(reader["Alergico"]);
+                    estudiante.Alergias = reader["Alergias"].ToString().Trim();
+                    estudiante.ContactoAlternativoUno = reader["ContactoAlternativoUno"].ToString().Trim();
+                    estudiante.ContactoAlternativoUnoTel = reader["ContactoAlternativoUnoTel"].ToString().Trim();
+                    estudiante.ContactoAlternativoDos = reader["ContactoAlternativoDos"].ToString().Trim();
+                    estudiante.ContactoAlternativoDosTel = reader["ContactoAlternativoDosTel"].ToString().Trim();
+                    estudiante.Convenio.ID = Convert.ToInt32(reader["ConvenioID"]);
+                    //estudiante.Convenio.Leer(strCon);
+                    estudiante.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    estudiante.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = false;
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -499,6 +557,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@GrupoID", this.GrupoID));
             lstParametros.Add(new SqlParameter("@MateriaID", this.MateriaID));
             lstParametros.Add(new SqlParameter("@Activo", this.Activo));
+            lstParametros.Add(new SqlParameter("@Validado", this.Validado));
             return lstParametros;
         }
 
@@ -511,7 +570,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Estudiante> lstEstudiantes = new List<Estudiante>();
-            string sql = "SELECT * FROM Estudiante;";
+            string sql = "SELECT * FROM Estudiante WHERE Validado = 1;";
             SqlDataReader reader = null;
             try
             {
@@ -540,6 +599,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -596,6 +656,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -665,6 +726,7 @@ namespace BibliotecaBritanico.Modelo
                     this.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     this.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     this.Activo = Convert.ToBoolean(reader["Activo"]);
+                    this.Validado = Convert.ToBoolean(reader["Validado"]);
                     Mensualidad mensualidad = new Mensualidad
                     {
                         ID = 0,
@@ -752,6 +814,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -806,6 +869,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     estudiante.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
+                    estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
