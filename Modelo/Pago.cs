@@ -17,7 +17,7 @@ namespace BibliotecaBritanico.Modelo
         public Sucursal Sucursal { get; set; }
         public int SucursalID { get; set; }
         public DateTime FechaHora { get; set; }
-        public string Concepto { get; set; }
+        public TipoPago Concepto { get; set; }
         public decimal Monto { get; set; }
         [JsonIgnore]
         public Funcionario Funcionario { get; set; }
@@ -34,13 +34,9 @@ namespace BibliotecaBritanico.Modelo
         public static bool ValidarPago(Pago pago)
         {
             string errorMsg = String.Empty;
-            if (pago.Concepto.Equals(String.Empty))
-            {
-                errorMsg = "Debe ingresar el Concepto del pago \n";
-            }
             if (pago.Monto < 1)
             {
-                errorMsg += "Debe ingresar el Monto del pago \n";
+                errorMsg += "Debe ingresar el Monto del pago";
             }
             if (pago.Funcionario.ID < 1)
             {
@@ -150,7 +146,7 @@ namespace BibliotecaBritanico.Modelo
                         this.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                         this.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                         this.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
-                        this.Concepto = reader["Concepto"].ToString().Trim();
+                        this.Concepto = (TipoPago)Convert.ToInt32(reader["Concepto"]);
                         this.Monto = Convert.ToDecimal(reader["Monto"]);
                         this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                         this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
@@ -262,7 +258,7 @@ namespace BibliotecaBritanico.Modelo
                     pago.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     pago.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     pago.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
-                    pago.Concepto = reader["Concepto"].ToString().Trim();
+                    pago.Concepto = (TipoPago)Convert.ToInt32(reader["Concepto"]);
                     pago.Monto = Convert.ToDecimal(reader["Monto"]);
                     pago.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     pago.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
@@ -326,7 +322,7 @@ namespace BibliotecaBritanico.Modelo
                     this.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     this.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     this.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
-                    this.Concepto = reader["Concepto"].ToString().Trim();
+                    this.Concepto = (TipoPago)Convert.ToInt32(reader["Concepto"]);
                     this.Monto = Convert.ToDecimal(reader["Monto"]);
                     this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
@@ -367,7 +363,7 @@ namespace BibliotecaBritanico.Modelo
                     pago.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     pago.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     pago.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
-                    pago.Concepto = reader["Concepto"].ToString().Trim();
+                    pago.Concepto = (TipoPago)Convert.ToInt32(reader["Concepto"]);
                     pago.Monto = Convert.ToDecimal(reader["Monto"]);
                     pago.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     pago.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);

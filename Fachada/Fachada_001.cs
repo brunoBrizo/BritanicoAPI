@@ -1469,16 +1469,11 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
-        public ExamenEstudiante GetExamenPendienteByEstudiante(Estudiante estudiante)
+        public List<Examen> GetExamenPendienteByEstudiante(Estudiante estudiante)
         {
             try
             {
-                List<ExamenEstudiante> lstExamenEstudiante = ExamenEstudiante.GetByEstudiante(estudiante, Fachada_001.Conexion);
-                if (lstExamenEstudiante.Count > 0)
-                {
-                    return ExamenEstudiante.GetExamenPendientePorEstudiante(lstExamenEstudiante);
-                }
-                return null;
+                return Examen.GetExamenPendientePorEstudiante(estudiante, Fachada_001.Conexion);
             }
             catch (ValidacionException ex)
             {

@@ -585,6 +585,90 @@ namespace BibliotecaBritanico.Modelo
             return lstEstudiante;
         }
 
+        public static List<Examen> GetExamenPendientePorEstudiante(Estudiante estudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            List<Examen> lstExamenes = new List<Examen>();
+            SqlDataReader reader = null;
+            try
+            {
+                //si debe un examen anterior, busco el de la misma materia pero actual
+                ExamenEstudiante examenEstudiante = ExamenEstudiante.GetExamenPendientePorEstudiante(estudiante, strCon);
+                if (examenEstudiante != null && examenEstudiante.ID > 0)
+                {
+                    Examen examen = new Examen
+                    {
+                        ID = examenEstudiante.Examen.ID,
+                        GrupoID = examenEstudiante.Examen.GrupoID
+                    };
+                    examen.Leer(strCon);
+                    lstParametros.Add(new SqlParameter("@MateriaID", examen.MateriaID));
+                    lstParametros.Add(new SqlParameter("@GrupoID", examen.GrupoID));
+                }
+                else
+                {
+                    if (estudiante.Leer(strCon))
+                    {
+                        lstParametros.Add(new SqlParameter("@MateriaID", estudiante.MateriaID));
+                        lstParametros.Add(new SqlParameter("@GrupoID", estudiante.GrupoID));
+                    }
+                    else
+                    {
+                        throw new Exception("No existe el estudiante");
+                    }
+                }
+                lstParametros.Add(new SqlParameter("@AnioAsociado", DateTime.Now.Year));                
+                string sqlExamenID = "SELECT E.ID, E.GrupoID FROM EXAMEN E, MATERIA M WHERE E.MATERIAID = M.ID AND E.ANIOASOCIADO = @AnioAsociado AND M.ID = @MateriaID;";
+
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sqlExamenID, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Examen examen = new Examen();
+                    examen.ID = Convert.ToInt32(reader["ID"]);
+                    examen.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    examen.Leer(strCon);
+                    lstExamenes.Add(examen);
+                }
+                if (lstExamenes.Count > 1)
+                {
+                    Examen examen = null;
+                    bool encuentroExamen = false;
+                    foreach (Examen examenAux in lstExamenes)
+                    {
+                        if (examenAux.GrupoID == estudiante.GrupoID)
+                        {
+                            examen = examenAux;
+                            encuentroExamen = true;
+                            break;
+                        }
+                    }
+                    if (encuentroExamen)
+                    {
+                        lstExamenes.Clear();
+                        lstExamenes.Add(examen);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (reader != null && !reader.IsClosed)
+                    reader.Close();
+                con.Close();
+            }
+            return lstExamenes;
+        }
+
 
         #endregion
 

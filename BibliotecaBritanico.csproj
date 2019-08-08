@@ -65,6 +65,7 @@
     <Compile Include="Modelo\Mensualidad.cs" />
     <Compile Include="Modelo\Sucursal.cs" />
     <Compile Include="Modelo\TipoDocumento.cs" />
+    <Compile Include="Modelo\TipoPago.cs" />
     <Compile Include="Modelo\VentaLibro.cs" />
     <Compile Include="Modelo\VentaLibroEstado.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

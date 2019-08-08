@@ -173,6 +173,37 @@ namespace BibliotecaBritanico.Modelo
             }
         }
 
+        public static ExamenEstudiante GetExamenPendientePorEstudiante(Estudiante estudiante, string strCon)
+        {
+            try
+            {
+                List<ExamenEstudiante> lstExamenEstudiante = ExamenEstudiante.GetByEstudiante(estudiante, strCon);
+                if (lstExamenEstudiante == null)
+                {
+                    return null;
+                }
+                lstExamenEstudiante.OrderByDescending(e => e.Examen.AnioAsociado);
+                ExamenEstudiante ultExamen = new ExamenEstudiante();                
+                foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                {
+                    ultExamen = examenEstudiante;
+                    break;
+                }
+                if (!ultExamen.Aprobado)
+                {
+                    return ultExamen;
+                }
+                return null;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region Persistencia
 
@@ -622,6 +653,7 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.ID = Convert.ToInt32(reader["ID"]);
                     examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
                     examenEstudiante.Examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.GrupoID = Convert.ToInt32(reader["GrupoID"]);
                     examenEstudiante.Estudiante = estudiante;
                     examenEstudiante.FechaInscripcion = Convert.ToDateTime(reader["FechaInscripcion"]);
                     examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);

@@ -60,7 +60,7 @@ namespace BibliotecaBritanico.Modelo
                 {
                     errorMsg += "Debe asociar la matricula a un funcionario \n";
                 }
-                if (matriculaEstudiante.Precio < 1)
+                if (matriculaEstudiante.Precio < 1 && (matriculaEstudiante.Estudiante.Convenio == null || matriculaEstudiante.Estudiante.Convenio.ID < 1))
                 {
                     errorMsg += "Debe ingresar precio \n";
                 }

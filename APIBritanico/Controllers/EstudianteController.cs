@@ -54,7 +54,7 @@ namespace APIBritanico.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<ExamenEstudiante> GetExamenPendiente(int id)
+        public ActionResult<List<Examen>> GetExamenPendiente(int id)
         {
             try
             {
@@ -64,12 +64,12 @@ namespace APIBritanico.Controllers
                     {
                         ID = id
                     };
-                    ExamenEstudiante examen = Fachada.GetExamenPendienteByEstudiante(estudiante);
-                    if (examen == null)
+                    List<Examen> lstExamenes = Fachada.GetExamenPendienteByEstudiante(estudiante);
+                    if (lstExamenes == null || lstExamenes.Count < 1)
                     {
                         return BadRequest("No existen examenes pendientes");
                     }
-                    return examen;
+                    return lstExamenes;
                 }
                 else
                 {
