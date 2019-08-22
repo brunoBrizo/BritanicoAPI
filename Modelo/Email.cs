@@ -24,12 +24,16 @@ namespace BibliotecaBritanico.Modelo
         public Email() { }
 
 
-        public async Task Enviar(string strCon, Parametro paramEmail, Parametro paramClave)
+        public async Task Enviar(string strCon, Parametro paramEmail, Parametro paramClave, string CCO)
         {
             try
             {
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.To.Add(this.DestinatarioEmail);
+                if (!CCO.Equals(String.Empty))
+                {
+                    mailMessage.Bcc.Add(CCO);
+                }
                 mailMessage.Subject = this.Asunto;
                 mailMessage.SubjectEncoding = Encoding.UTF8;
 
@@ -70,7 +74,7 @@ namespace BibliotecaBritanico.Modelo
                 {
                     this.Modificar(strCon);
                 }
-                catch(Exception ex2)
+                catch (Exception ex2)
                 {
                     throw ex2;
                 }
@@ -112,7 +116,7 @@ namespace BibliotecaBritanico.Modelo
             cuerpoHtml += this.ObtenerPieEmailHtml();
             return cuerpoHtml;
         }
-        
+
         public static bool ValidarEmail(Email email)
         {
             string errorMsg = String.Empty;
@@ -175,6 +179,55 @@ namespace BibliotecaBritanico.Modelo
                 con.Close();
             }
             return ok;
+        }
+
+        public async Task<bool> EnviarMailPorGrupo(Grupo grupo, string strCon)
+        {
+            bool ok = false;
+            try
+            {
+                List<Estudiante> lstEstudiantes = Estudiante.GetAllByGrupo(grupo, strCon);
+                if (lstEstudiantes.Count > 0)
+                {
+                    string CCO = String.Empty;
+                    foreach (Estudiante estudiante in lstEstudiantes)
+                    {
+                        CCO += estudiante.Email + ",";
+                    }
+                    CCO = CCO.TrimEnd(',');
+
+                    //datos de email
+                    Parametro paramEmail = new Parametro
+                    {
+                        ID = 1
+                    };
+                    paramEmail.Leer(strCon);
+                    Parametro paramClave = new Parametro
+                    {
+                        ID = 3
+                    };
+                    paramClave.Leer(strCon);
+
+                    this.DestinatarioEmail = paramEmail.Valor;
+                    this.DestinatarioNombre = "Instituto Britanico de Rivera";
+                    this.Enviado = true;
+                    if (this.Guardar(strCon))
+                    {
+                        await this.Enviar(strCon, paramEmail, paramClave, CCO);
+                        return true;
+                    }
+                    return ok;
+                }
+                throw new ValidacionException("El grupo no tiene estudiantes");
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
@@ -475,7 +528,7 @@ namespace BibliotecaBritanico.Modelo
 
         #endregion
 
-        
+
 
     }
 }

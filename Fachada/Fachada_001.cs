@@ -54,7 +54,7 @@ namespace BibliotecaBritanico.Fachada
                             ID = 3
                         };
                         paramClave.Leer(Fachada_001.Conexion);
-                        await email.Enviar(Fachada_001.Conexion, paramEmail, paramClave);
+                        await email.Enviar(Fachada_001.Conexion, paramEmail, paramClave, String.Empty);
                         return email;
                     }
 
@@ -68,12 +68,35 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en CrearEmail | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando email | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en CrearEmail | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error creando email | Error: " + ex.Message);
+            }
+        }
+
+        public async Task<bool> EnviarMailPorGrupo(Email email, Grupo grupo)
+        {
+            try
+            {
+                bool ret = await email.EnviarMailPorGrupo(grupo, Fachada_001.Conexion);
+                return ret;
+            }
+            catch (ValidacionException ex)
+            {
                 throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Email", "Error en EnviarMailPorGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error enviando email al grupo | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Email", "Error en EnviarMailPorGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error enviando email al grupo | Error: " + ex.Message);
             }
         }
 
@@ -98,12 +121,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en ModificarEmail | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando email | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en ModificarEmail | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando email | Error: " + ex.Message);
             }
         }
 
@@ -125,12 +148,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en EliminarEmail | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando email | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en EliminarEmail | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando email | Error: " + ex.Message);
             }
         }
 
@@ -149,12 +172,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en ObtenerEmails | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo emails | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en ObtenerEmails | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo emails | Error: " + ex.Message);
             }
         }
 
@@ -173,12 +196,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en ObtenerEmailsEntreFechas | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo emails entre fechas | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en ObtenerEmailsEntreFechas | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo emails entre fechas | Error: " + ex.Message);
             }
         }
 
@@ -197,12 +220,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en GetEmail | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo email | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en GetEmail | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo email | Error: " + ex.Message);
             }
         }
 
@@ -225,7 +248,7 @@ namespace BibliotecaBritanico.Fachada
                 List<Email> lstEmails = emailAux.GetPendientesEntreFechas(DateTime.Now.AddDays(-7), DateTime.Now, Fachada_001.Conexion);
                 foreach (Email email in lstEmails)
                 {
-                    await email.Enviar(Fachada_001.Conexion, paramEmail, paramClave);
+                    await email.Enviar(Fachada_001.Conexion, paramEmail, paramClave, String.Empty);
                     email.Enviado = true;
                     email.Modificar(Fachada_001.Conexion);
                 }
@@ -237,12 +260,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en EnviarEmailsPendientes | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error enviando emails pendientes | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Email", "Error en EnviarEmailsPendientes | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error enviando emails pendientes | Error: " + ex.Message);
             }
         }
 
@@ -270,12 +293,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en CrearConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando convenio | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en CrearConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando convenio | Error: " + ex.Message);
             }
         }
 
@@ -297,12 +320,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en ModificarConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando convenio | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en ModificarConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando convenio | Error: " + ex.Message);
             }
         }
 
@@ -324,12 +347,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en EliminarConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("No se puede eliminar el convenio | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en EliminarConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando convenio | Error: " + ex.Message);
             }
         }
 
@@ -348,12 +371,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en ObtenerConvenios | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo convenios | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en ObtenerConvenios | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo convenios | Error: " + ex.Message);
             }
         }
 
@@ -372,12 +395,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en ObtenerConveniosByAnio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo convenios por año | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en ObtenerConveniosByAnio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo convenios por año | Error: " + ex.Message);
             }
         }
 
@@ -396,12 +419,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en GetConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo convenio | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en GetConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo convenio | Error: " + ex.Message);
             }
         }
 
@@ -428,12 +451,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en CrearParametro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando parametro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en CrearParametro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando parametro | Error: " + ex.Message);
             }
         }
 
@@ -459,12 +482,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en ModificarParametro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando parametro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en ModificarParametro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando parametro | Error: " + ex.Message);
             }
         }
 
@@ -486,12 +509,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en EliminarParametro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando parametro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en EliminarParametro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando parametro | Error: " + ex.Message);
             }
         }
 
@@ -510,12 +533,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en ObtenerParametros | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo parametros | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en ObtenerParametros | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo parametros | Error: " + ex.Message);
             }
         }
 
@@ -534,12 +557,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en GetParametro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo parametro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en GetParametro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo parametro | Error: " + ex.Message);
             }
         }
 
@@ -566,12 +589,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en CrearPago | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando pago | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en CrearPago | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando pago | Error: " + ex.Message);
             }
         }
 
@@ -593,12 +616,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en ModificarPago | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando pago | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en ModificarPago | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando pago | Error: " + ex.Message);
             }
         }
 
@@ -620,12 +643,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en EliminarPago | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando pago | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en EliminarPago | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando pago | Error: " + ex.Message);
             }
         }
 
@@ -644,12 +667,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en ObtenerPagos | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo pagos | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en ObtenerPagos | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo pagos | Error: " + ex.Message);
             }
         }
 
@@ -668,12 +691,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en GetPago | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo pago | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en GetPago | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo pago | Error: " + ex.Message);
             }
         }
 
@@ -700,12 +723,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en CrearMateria | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando materia | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en CrearMateria | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando materia | Error: " + ex.Message);
             }
         }
 
@@ -727,12 +750,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en ModificarMateria | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando materia | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en ModificarMateria | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando materia | Error: " + ex.Message);
             }
         }
 
@@ -754,7 +777,14 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en EliminarMateria | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la materia");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando materia | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
@@ -778,12 +808,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en ObtenerMaterias | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo materias | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en ObtenerMaterias | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo materias | Error: " + ex.Message);
             }
         }
 
@@ -803,12 +833,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en GetMateria | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo materia | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en GetMateria | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo materia | Error: " + ex.Message);
             }
         }
 
@@ -835,12 +865,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en CrearLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando libro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en CrearLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando libro | Error: " + ex.Message);
             }
         }
 
@@ -862,12 +892,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en ModificarLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando libro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en ModificarLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando libro | Error: " + ex.Message);
             }
         }
 
@@ -893,12 +923,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en EliminarLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar el libro");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando libro | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en EliminarLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando libro | Error: " + ex.Message);
             }
         }
 
@@ -917,12 +954,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en ObtenerLibros | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo libros | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en ObtenerLibros | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo libros | Error: " + ex.Message);
             }
         }
 
@@ -941,12 +978,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en GetLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo libro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en GetLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo libro | Error: " + ex.Message);
             }
         }
 
@@ -973,12 +1010,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en CrearEmpresa | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando empresa | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en CrearEmpresa | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando empresa | Error: " + ex.Message);
             }
         }
 
@@ -1000,12 +1037,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en ModificarEmpresa | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando empresa | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en ModificarEmpresa | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando empresa | Error: " + ex.Message);
             }
         }
 
@@ -1027,12 +1064,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en EliminarEmpresa | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la empresa");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando empresa | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en EliminarEmpresa | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando empresa | Error: " + ex.Message);
             }
         }
 
@@ -1051,12 +1095,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en ObtenerEmpresas | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo empresas | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en ObtenerEmpresas | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo empresas | Error: " + ex.Message);
             }
         }
 
@@ -1075,12 +1119,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en GetEmpresa | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo empresa | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en GetEmpresa | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo empresa | Error: " + ex.Message);
             }
         }
 
@@ -1107,12 +1151,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en CrearSucursal | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando sucursal | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en CrearSucursal | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando sucursal | Error: " + ex.Message);
             }
         }
 
@@ -1134,12 +1178,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en ModificarSucursal | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando sucursal | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en ModificarSucursal | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando sucursal | Error: " + ex.Message);
             }
         }
 
@@ -1161,12 +1205,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en EliminarSucursal | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la sucursal");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando sucursal | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en EliminarSucursal | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando sucursal | Error: " + ex.Message);
             }
         }
 
@@ -1185,12 +1236,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en ObtenerSucursales | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo sucursales | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en ObtenerSucursales | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo sucursales | Error: " + ex.Message);
             }
         }
 
@@ -1209,12 +1260,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en GetSucursal | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo sucursal | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en GetSucursal | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo sucursal | Error: " + ex.Message);
             }
         }
 
@@ -1241,12 +1292,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en CrearEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en CrearEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1268,12 +1319,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ModificarEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ModificarEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1295,12 +1346,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en EliminarEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar el estudiante");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando estudiante | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en EliminarEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1319,12 +1377,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantes | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantes | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes | Error: " + ex.Message);
             }
         }
 
@@ -1343,12 +1401,36 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesActivos | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes activos | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesActivos | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo estudiantes activos | Error: " + ex.Message);
+            }
+        }
+
+        public List<Estudiante> ObtenerEstudiantesNoActivos()
+        {
+            try
+            {
+                Estudiante estudiante = new Estudiante();
+                List<Estudiante> lstEstudiantes = estudiante.GetAllNoActivos(Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
                 throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesNoActivos | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo estudiantes no activos | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesNoActivos | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo estudiantes no activos | Error: " + ex.Message);
             }
         }
 
@@ -1367,12 +1449,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesNoValidados | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes no validados | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesNoValidados | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes no validados | Error: " + ex.Message);
             }
         }
 
@@ -1390,12 +1472,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudianteByNombre | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiante por nombre | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudianteByNombre | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiante por nombre | Error: " + ex.Message);
             }
         }
 
@@ -1414,12 +1496,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1436,12 +1518,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ExisteEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error buscando estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ExisteEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error buscando estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1460,12 +1542,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetEstudianteConMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error buscando estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetEstudianteConMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error buscando estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1482,12 +1564,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetExamenPendienteByEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examen pendiente de un estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetExamenPendienteByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examen pendiente de un estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1527,12 +1609,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesByConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes por convenio | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesByConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes por convenio | Error: " + ex.Message);
             }
         }
 
@@ -1550,15 +1632,117 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesConConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes con convenio | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesConConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes con convenio | Error: " + ex.Message);
             }
         }
 
+        public List<Estudiante> ObtenerEstudiantesDeudores()
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Estudiante.GetDeudores(Fachada_001.Conexion);
+                return lstEstudiantes;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesDeudores | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo estudiantes deudores | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEstudiantesDeudores | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo estudiantes deudores | Error: " + ex.Message);
+            }
+        }
+
+        public ExamenEstudiante ObtenerExamenEstudianteCuotas(Estudiante estudiante)
+        {
+            try
+            {
+                estudiante.Leer(Fachada_001.Conexion);
+                if (estudiante.GrupoID < 1)
+                {
+                    throw new ValidacionException("El estudiante no esta asociado a ningun grupo");
+                }
+                ExamenEstudiante examenEstudiante = Estudiante.GetExamenEstudianteCuotas(estudiante, Fachada_001.Conexion);
+                return examenEstudiante;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerExamenEstudianteCuotas | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo el examen del estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerExamenEstudianteCuotas | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo el examen del estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public bool DarBajaEstudiante(Estudiante estudiante, int mes)
+        {
+            try
+            {
+                estudiante.Leer(Fachada_001.Conexion);
+                if (estudiante.GrupoID < 1)
+                {
+                    throw new ValidacionException("El estudiante no esta asociado a ningun grupo");
+                }
+                bool ret = estudiante.DarDeBaja(Fachada_001.Conexion, mes);
+                return ret;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en DarBajaEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error dando de baja a estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en DarBajaEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error dando de baja a estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public List<DatosEscolaridad> ObtenerEscolaridad(Estudiante estudiante)
+        {
+            try
+            {
+                estudiante.Leer(Fachada_001.Conexion);
+                List<DatosEscolaridad> lstDatosEscolaridad = Estudiante.GetEscolaridad(estudiante, Fachada_001.Conexion);
+                return lstDatosEscolaridad;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
+            }
+        }
 
         #endregion
 
@@ -1583,12 +1767,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en CrearFuncionario | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando funcionario | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en CrearFuncionario | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando funcionario | Error: " + ex.Message);
             }
         }
 
@@ -1610,12 +1794,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en ModificarFuncionario | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando funcionario | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en ModificarFuncionario | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando funcionario | Error: " + ex.Message);
             }
         }
 
@@ -1637,12 +1821,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en EliminarFuncionario | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar al funcionario");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando funcionario | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en EliminarFuncionario | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando funcionario | Error: " + ex.Message);
             }
         }
 
@@ -1661,12 +1852,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en ObtenerFuncionarios | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo funcionarios | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en ObtenerFuncionarios | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo funcionarios | Error: " + ex.Message);
             }
         }
 
@@ -1685,12 +1876,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en ObtenerFuncionariosPorSucursal | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo funcionarios por sucursal | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en ObtenerFuncionariosPorSucursal | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo funcionarios por sucursal | Error: " + ex.Message);
             }
         }
 
@@ -1709,12 +1900,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en GetFuncionario | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo funcionario | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en GetFuncionario | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo funcionario | Error: " + ex.Message);
             }
         }
 
@@ -1740,7 +1931,7 @@ namespace BibliotecaBritanico.Fachada
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en Login | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error accediendo a la base de datos durante el Login. Inténtelo nuevamente | Error: " + ex.Message);
             }
         }
 
@@ -1762,12 +1953,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en OlvideMiPassword | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error reestableciendo contraseña de funcionario | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en OlvideMiPassword | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error reestableciendo contraseña de funcionario | Error: " + ex.Message);
             }
         }
 
@@ -1796,12 +1987,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en CrearMatricula | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando matricula | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en CrearMatricula | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando matricula | Error: " + ex.Message);
             }
         }
 
@@ -1823,12 +2014,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en ModificarMatricula | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando matricula | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en ModificarMatricula | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando matricula | Error: " + ex.Message);
             }
         }
 
@@ -1850,12 +2041,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en EliminarMatricula | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la matricula");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando matricula | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en EliminarMatricula | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando matricula | Error: " + ex.Message);
             }
         }
 
@@ -1874,12 +2072,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en ObtenerMatriculas | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matriculas | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en ObtenerMatriculas | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matriculas | Error: " + ex.Message);
             }
         }
 
@@ -1897,12 +2095,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en ObtenerMatriculasByAnio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matriculas por año | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en ObtenerMatriculasByAnio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matriculas por año | Error: " + ex.Message);
             }
         }
 
@@ -1922,12 +2120,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en GetMatricula | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matricula | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en GetMatricula | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matricula | Error: " + ex.Message);
             }
         }
 
@@ -1954,12 +2152,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en CrearVentaLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando la venta del libro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en CrearVentaLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando la venta del libro | Error: " + ex.Message);
             }
         }
 
@@ -1981,12 +2179,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en ModificarVentaLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando la venta del libro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en ModificarVentaLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando la venta del libro | Error: " + ex.Message);
             }
         }
 
@@ -2006,12 +2204,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en EliminarVentaLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la venta del libro");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando la venta del libro | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en EliminarVentaLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando la venta del libro | Error: " + ex.Message);
             }
         }
 
@@ -2030,12 +2235,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en ObtenerVentaLibros | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo ventas de libros | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en ObtenerVentaLibros | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo ventas de libros | Error: " + ex.Message);
             }
         }
 
@@ -2053,12 +2258,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en ObtenerVentaLibrosByEstado | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo ventas de libros por estado | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en ObtenerVentaLibrosByEstado | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo ventas de libros por estado | Error: " + ex.Message);
             }
         }
 
@@ -2077,12 +2282,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en GetVentaLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo la venta del libro | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en GetVentaLibro | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo la venta del libro | Error: " + ex.Message);
             }
         }
 
@@ -2109,12 +2314,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en CrearExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando examen | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en CrearExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando examen | Error: " + ex.Message);
             }
         }
 
@@ -2136,12 +2341,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ModificarExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando examen | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ModificarExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando examen | Error: " + ex.Message);
             }
         }
 
@@ -2163,12 +2368,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en EliminarExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar el examen");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando examen | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en EliminarExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando examen | Error: " + ex.Message);
             }
         }
 
@@ -2187,12 +2399,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerExamenes | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerExamenes | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes | Error: " + ex.Message);
             }
         }
 
@@ -2210,12 +2422,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerExamenesByGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes por grupo | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerExamenesByGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes por grupo | Error: " + ex.Message);
             }
         }
 
@@ -2233,12 +2445,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerExamenesByAnioAsociado | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes por año | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerExamenesByAnioAsociado | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes por año | Error: " + ex.Message);
             }
         }
 
@@ -2257,12 +2469,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en GetExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examen | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en GetExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examen | Error: " + ex.Message);
             }
         }
 
@@ -2280,12 +2492,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerEstudiantesByExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes por examen | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en ObtenerEstudiantesByExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes por examen | Error: " + ex.Message);
             }
         }
 
@@ -2313,12 +2525,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en CrearGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando grupo | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en CrearGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando grupo | Error: " + ex.Message);
             }
         }
 
@@ -2340,12 +2552,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ModificarGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando grupo | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ModificarGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando grupo | Error: " + ex.Message);
             }
         }
 
@@ -2367,12 +2579,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en EliminarGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar el grupo");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando grupo | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en EliminarGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando grupo | Error: " + ex.Message);
             }
         }
 
@@ -2391,12 +2610,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ObtenerGrupos | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo grupos | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ObtenerGrupos | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo grupos | Error: " + ex.Message);
             }
         }
 
@@ -2415,12 +2634,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ObtenerGruposByAnio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo grupos por año | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ObtenerGruposByAnio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo grupos por año | Error: " + ex.Message);
             }
         }
 
@@ -2439,12 +2658,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en GetGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo grupo | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en GetGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo grupo | Error: " + ex.Message);
             }
         }
 
@@ -2462,12 +2681,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ObtenerEstudiantesByGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes por grupo | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en ObtenerEstudiantesByGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo estudiantes por grupo | Error: " + ex.Message);
             }
         }
 
@@ -2495,12 +2714,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en CrearMatriculaEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando la matricula del estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en CrearMatriculaEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando la matricula del estudiante | Error: " + ex.Message);
             }
         }
 
@@ -2522,12 +2741,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en ModificarMatriculaEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando la matricula del estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en ModificarMatriculaEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando la matricula del estudiante | Error: " + ex.Message);
             }
         }
 
@@ -2549,12 +2768,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en EliminarMatriculaEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la matricula del estudiante");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando la matricula del estudiante | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en EliminarMatriculaEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando la matricula del estudiante | Error: " + ex.Message);
             }
         }
 
@@ -2573,12 +2799,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en ObtenerMatriculaEstudiantes | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matriculas de estudiantes | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en ObtenerMatriculaEstudiantes | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo matriculas de estudiantes | Error: " + ex.Message);
             }
         }
 
@@ -2598,12 +2824,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en GetMatriculaEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo la matricula del estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en GetMatriculaEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo la matricula del estudiante | Error: " + ex.Message);
             }
         }
 
@@ -2630,12 +2856,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en CrearMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando mensualidad | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en CrearMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error creando mensualidad | Error: " + ex.Message);
             }
         }
 
@@ -2657,12 +2883,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en ModificarMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando mensualidad | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en ModificarMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando mensualidad | Error: " + ex.Message);
             }
         }
 
@@ -2684,12 +2910,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en EliminarMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar la mensualidad");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando mensualidad | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en EliminarMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando mensualidad | Error: " + ex.Message);
             }
         }
 
@@ -2709,21 +2942,22 @@ namespace BibliotecaBritanico.Fachada
                 catch (SqlException ex)
                 {
                     Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidades | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                    throw ex;
+                    throw new Exception("Error obteniendo mensualidades | Error: " + ex.Message);
                 }
                 catch (Exception ex)
                 {
                     Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidades | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                    throw ex;
+                    throw new Exception("Error obteniendo mensualidades | Error: " + ex.Message);
                 }
             }
         }
 
-        public List<Mensualidad> ObtenerMensualidadesByEstudianteGrupo(Mensualidad mensualidad)
+        public List<Mensualidad> ObtenerMensualidadesByEstudiante(Mensualidad mensualidad)
         {
             try
             {
-                List<Mensualidad> lstMensualidades = mensualidad.GetAllByEstudianteGrupo(Fachada_001.Conexion);
+                List<Mensualidad> lstMensualidades = mensualidad.GetAllByEstudiante(Fachada_001.Conexion);
+                Mensualidad.CalcularRecargo(lstMensualidades, Fachada_001.Conexion);
                 return lstMensualidades;
             }
             catch (ValidacionException ex)
@@ -2732,13 +2966,13 @@ namespace BibliotecaBritanico.Fachada
             }
             catch (SqlException ex)
             {
-                Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesByEstudianteGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesByEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mensualidades por estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
-                Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesByEstudianteGrupo | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mensualidades por estudiante | Error: " + ex.Message);
             }
         }
 
@@ -2757,12 +2991,36 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en GetMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo mensualidad | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en GetMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mensualidad | Error: " + ex.Message);
+            }
+        }
+
+        public bool PagarMensualidad(List<Mensualidad> lstMensualidades)
+        {
+            try
+            {
+                if (Mensualidad.PagarMensualidad(lstMensualidades, Fachada_001.Conexion))
+                    return true;
+                return false;
+            }
+            catch (ValidacionException ex)
+            {
                 throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Mensualidad", "Error en PagarMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error pagando mensualidad | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Mensualidad", "Error en PagarMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error pagando mensualidad | Error: " + ex.Message);
             }
         }
 
@@ -2789,12 +3047,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en CrearExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error inscribiendo el estudiante al examen | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en CrearExamenEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error inscribiendo el estudiante al examen | Error: " + ex.Message);
             }
         }
 
@@ -2816,12 +3074,64 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en ModificarExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error modificando la inscripción del estudiante a un examen | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en ModificarExamenEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error modificando la inscripción del estudiante a un examen | Error: " + ex.Message);
+            }
+        }
+
+        public bool PagarCuotaExamenEstudiante(ExamenEstudiante examenEstudiante)
+        {
+            try
+            {
+                if (examenEstudiante.PagarCuota(Fachada_001.Conexion))
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (ValidacionException ex)
+            {
                 throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en PagarCuotaExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error pagando la cuota de un examen | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en PagarCuotaExamenEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error pagando la cuota de un examen | Error: " + ex.Message);
+            }
+        }
+
+        public bool AsignarResultadoListaExamenEstudiante(List<ExamenEstudiante> lstExamenEstudiante)
+        {
+            try
+            {
+                if (ExamenEstudiante.AsignarResultadoByLista(lstExamenEstudiante, Fachada_001.Conexion))
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en AsignarResultadoListaExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error asignando resultados a los examenes | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en AsignarResultadoListaExamenEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error asignando resultados a los examenes | Error: " + ex.Message);
             }
         }
 
@@ -2843,12 +3153,19 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en EliminarExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
+                {
+                    throw new Exception("No se puede eliminar el examen del estudiante");
+                }
+                else
+                {
+                    throw new Exception("Error eliminando el examen del estudiante | Error: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en EliminarExamenEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error eliminando el examen del estudiante | Error: " + ex.Message);
             }
         }
 
@@ -2867,12 +3184,12 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en ObtenerExamenesEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes de los estudiantes | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en ObtenerExamenesEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo examenes de los estudiantes | Error: " + ex.Message);
             }
         }
 
@@ -2891,12 +3208,61 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw ex;
+                throw new Exception("Error obteniendo el examen del estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo el examen del estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public List<ExamenEstudiante> GetExamenesNoPagosByEstudiante(Estudiante estudiante)
+        {
+            try
+            {
+                return ExamenEstudiante.GetNoPagosByEstudiante(estudiante, Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
                 throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenesNoPagosByEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examenes sin pagar por estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenesNoPagosByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examenes sin pagar por estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public List<ExamenEstudiante> GetExamenEstudianteByExamen(Examen examen)
+        {
+            try
+            {
+                if (examen.Leer(Fachada_001.Conexion))
+                {
+                    List<ExamenEstudiante> lstExamenes = ExamenEstudiante.GetByExamen(examen, Fachada_001.Conexion);
+                    return lstExamenes;
+                }
+                return null;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenEstudianteByExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo inscripciones a un examen | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenEstudianteByExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo inscripciones a un examen | Error: " + ex.Message);
             }
         }
 

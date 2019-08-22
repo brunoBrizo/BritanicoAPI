@@ -91,33 +91,77 @@ namespace APIBritanico.Controllers
             }
         }
 
-        
+
         //// POST api/email/crear/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task Crear([FromBody]Email data)
+        public async Task<ActionResult<bool>> Crear([FromBody]Email data)
         {
             try
             {
                 Email email = (Email)data;
-                //if (email == null)
-                //{
-                //    return BadRequest("Datos no validos en el request");
-                //}
+                if (email == null)
+                {
+                    return BadRequest("Datos no validos en el request");
+                }
                 email = await Fachada.CrearEmail(email);
-                //if (email == null)
-                //{
-                //    return BadRequest("No se creo el email");
-                //}
-                //else
-                //{
-                //    return Ok();
-                //}
+                if (email == null)
+                {
+                    return BadRequest(false);
+                }
+                else
+                {
+                    return Ok(true);
+                }
             }
             catch (Exception ex)
             {
-                //return BadRequest(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// POST api/email/EnviarMailPorGrupo/
+        [HttpPost("{grupoID:int},{asunto},{mensaje}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<bool>> EnviarMailPorGrupo(int grupoID, string asunto, string mensaje)
+        {
+            try
+            {
+                if (grupoID < 1)
+                {
+                    return BadRequest("Debe enviar un grupo");
+                }
+                if (asunto.Equals(String.Empty) || mensaje.Equals(String.Empty))
+                {
+                    return BadRequest("Debe ingresar asunto y un mensaje");
+                }
+                Email email = new Email
+                {
+                    ID = 0,
+                    Asunto = asunto,
+                    CuerpoHTML = mensaje,
+                    FechaHora = DateTime.Now
+                };
+                Grupo grupo = new Grupo
+                {
+                    ID = grupoID
+                };
+                bool ret = await Fachada.EnviarMailPorGrupo(email, grupo);
+                if (!ret)
+                {
+                    return BadRequest(ret);
+                }
+                else
+                {
+                    return Ok(ret);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

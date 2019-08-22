@@ -68,30 +68,29 @@ namespace APIBritanico.Controllers
         }
 
 
-        //// GET: api/mensualidad/getallbyestudiantegrupo/1,1,1
-        [HttpGet("{estudianteID:int},{grupoID:int},{materiaID:int}")]
+        //// GET: api/mensualidad/getallbyestudiantegrupo/1,1
+        [HttpGet("{estudianteID:int},{anio:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<List<Mensualidad>> GetAllByEstudianteGrupo(int estudianteID, int grupoID, int materiaID)
+        public ActionResult<List<Mensualidad>> GetAllByEstudiante(int estudianteID, int anio)
         {
             try
             {
-                if (estudianteID < 1 || grupoID < 1 || materiaID < 1)
+                if (estudianteID < 1 || anio < 2000)
                 {
                     return BadRequest("Datos invalidos en el request");
                 }
                 Mensualidad mensualidad = new Mensualidad
                 {
                     ID = 0,
-                    GrupoID = grupoID,
-                    MateriaID = materiaID
+                    AnioAsociado = anio
                 };
                 Estudiante estudiante = new Estudiante
                 {
                     ID = estudianteID
                 };
                 mensualidad.Estudiante = estudiante;
-                List<Mensualidad> lstMensualidades = Fachada.ObtenerMensualidadesByEstudianteGrupo(mensualidad);
+                List<Mensualidad> lstMensualidades = Fachada.ObtenerMensualidadesByEstudiante(mensualidad);
                 return lstMensualidades;
             }
             catch (Exception ex)
@@ -200,6 +199,42 @@ namespace APIBritanico.Controllers
                 mensualidad.Funcionario.ID = mensualidad.FuncionarioID;
                 mensualidad.Sucursal.ID = mensualidad.SucursalID;
                 if (Fachada.ModificarMensualidad(mensualidad))
+                {
+                    return true;
+                }
+                else
+                {
+                    return BadRequest(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// PUT api/mensualidad/Pagar/
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> Pagar([FromBody]List<Mensualidad> data)
+        {
+            try
+            {
+                List<Mensualidad> lstMensualidades = (List<Mensualidad>)data;
+                if (lstMensualidades == null || lstMensualidades.Count < 1)
+                {
+                    return BadRequest("Datos no validos en el request");
+                }
+                foreach (Mensualidad mensualidad in lstMensualidades)
+                {
+                    if (mensualidad.Precio < 1)
+                    {
+                        return BadRequest("Precio de la mensualidad debe ser mayor a 0");
+                    }
+                }
+                if (Fachada.PagarMensualidad(lstMensualidades))
                 {
                     return true;
                 }

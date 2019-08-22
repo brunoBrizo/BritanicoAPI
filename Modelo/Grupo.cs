@@ -26,6 +26,7 @@ namespace BibliotecaBritanico.Modelo
         public string HoraFin { get; set; }
         public decimal Precio { get; set; } //deberia ser el precio de la materia, pero puede variar
         public int Anio { get; set; }
+        public bool Activo { get; set; }
         public List<GrupoDia> LstDias { get; set; } = new List<GrupoDia>();
 
 
@@ -211,6 +212,61 @@ namespace BibliotecaBritanico.Modelo
             return this.Leer(strCon);
         }
 
+        public bool LeerConMateria(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool ok = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            SqlDataReader reader = null;
+            string sql = "";
+            if (this.ID > 0)
+            {
+                sql = "SELECT * FROM Grupo WHERE ID = @ID";
+                lstParametros.Add(new SqlParameter("@ID", this.ID));
+            }
+            else
+            {
+                throw new ValidacionException("Datos insuficientes para buscar al Grupo");
+            }
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    this.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                    this.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    this.Materia.Leer(strCon);
+                    this.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
+                    this.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                    this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    this.HoraInicio = reader["HoraInicio"].ToString().Trim();
+                    this.HoraFin = reader["HoraFin"].ToString().Trim();
+                    this.Precio = Convert.ToDecimal(reader["Precio"]);
+                    this.Anio = Convert.ToInt32(reader["Anio"]);
+                    this.Activo = Convert.ToBoolean(reader["Activo"]);
+
+                    //this.LeerDias(strCon);
+                    ok = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return ok;
+        }
+        
         public bool Leer(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
@@ -242,6 +298,7 @@ namespace BibliotecaBritanico.Modelo
                     this.HoraFin = reader["HoraFin"].ToString().Trim();
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
                     this.Anio = Convert.ToInt32(reader["Anio"]);
+                    this.Activo = Convert.ToBoolean(reader["Activo"]);
 
                     this.LeerDias(strCon);
                     ok = true;
@@ -312,7 +369,7 @@ namespace BibliotecaBritanico.Modelo
                 this.ID = 0;
                 this.ID = (int)Herramientas.ObtenerNumerador("GRUPO", strCon);
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sqlGrupo = "INSERT INTO Grupo VALUES (@ID, @MateriaID, @SucursalID, @FuncionarioID, @HoraInicio, @HoraFin, @Precio, @Anio);";
+                string sqlGrupo = "INSERT INTO Grupo VALUES (@ID, @MateriaID, @SucursalID, @FuncionarioID, @HoraInicio, @HoraFin, @Precio, @Anio, 1);";
                 int res = 0;
                 res = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sqlGrupo, lstParametros, CommandType.Text, tran));
                 if (res > 0)
@@ -480,6 +537,7 @@ namespace BibliotecaBritanico.Modelo
                     grupo.HoraFin = reader["HoraFin"].ToString().Trim();
                     grupo.Precio = Convert.ToDecimal(reader["Precio"]);
                     grupo.Anio = Convert.ToInt32(reader["Anio"]);
+                    grupo.Activo = Convert.ToBoolean(reader["Activo"]);
                     grupo.LeerDias(strCon);
                     lstGrupo.Add(grupo);
                 }
@@ -516,6 +574,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@HoraFin", this.HoraFin));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
             lstParametros.Add(new SqlParameter("@Anio", this.Anio));
+            lstParametros.Add(new SqlParameter("@Activo", this.Activo));
             return lstParametros;
         }
 
@@ -545,6 +604,7 @@ namespace BibliotecaBritanico.Modelo
                     grupo.HoraFin = reader["HoraFin"].ToString().Trim();
                     grupo.Precio = Convert.ToDecimal(reader["Precio"]);
                     grupo.Anio = Convert.ToInt32(reader["Anio"]);
+                    grupo.Activo = Convert.ToBoolean(reader["Activo"]);
                     grupo.LeerDias(strCon);
                     lstGrupo.Add(grupo);
                 }
@@ -625,7 +685,6 @@ namespace BibliotecaBritanico.Modelo
             return lstEstudiantes;
         }
 
-
         private bool ExisteGrupoDia(GrupoDia dia, string strCon)
         {
             {
@@ -669,6 +728,33 @@ namespace BibliotecaBritanico.Modelo
                 }
                 return ok;
             }
+        }
+
+        public static bool SetInactivo(int id, SqlConnection con, SqlTransaction tran)
+        {
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ID", id));
+            string sql = "UPDATE Grupo SET Activo = 0 WHERE ID = @ID;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                if (res > 0)
+                {
+                    SeModifico = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return SeModifico;
         }
 
         #endregion

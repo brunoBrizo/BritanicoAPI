@@ -27,8 +27,12 @@ namespace BibliotecaBritanico.Modelo
         public Funcionario Funcionario { get; set; }
         public int FuncionarioID { get; set; }
         public List<ExamenEstudianteCuota> LstCuotas { get; set; } = new List<ExamenEstudianteCuota>();
-
-
+        public bool Anulado { get; set; }
+        public decimal FaltasEnClase { get; set; }
+        public decimal NotaFinalOral { get; set; }
+        public decimal NotaFinalWritting { get; set; }
+        public decimal NotaFinalListening { get; set; }
+        public decimal InternalAssessment { get; set; }
 
         public ExamenEstudiante()
         {
@@ -53,12 +57,23 @@ namespace BibliotecaBritanico.Modelo
                     errorMsg += "Fecha de inscripcion invalida \n";
                 if (examenEstudiante.CantCuotas < 1)
                     errorMsg += "Debe ingresar la cantidad de cuotas \n";
-                if (examenEstudiante.Precio < 1)
+                if (examenEstudiante.Precio < 1 && (examenEstudiante.Estudiante.Convenio == null || examenEstudiante.Estudiante.Convenio.ID < 1))
                     errorMsg += "Debe ingresar precio \n";
                 if (examenEstudiante.Funcionario.ID < 1)
                     errorMsg += "Debe asociar el examen a un funcionario \n";
-                if (errorMsg.Equals(String.Empty) && ExamenEstudiante.ExisteExamenEstudiante(examenEstudiante, strCon))
-                    errorMsg = "El estudiante ya esta inscripto al examen";
+                if (errorMsg.Equals(String.Empty))
+                {
+                    if (examenEstudiante.Estudiante.Leer(strCon))
+                    {
+                        if (examenEstudiante.Estudiante.GrupoID >= 1)
+                            errorMsg = "El estudiante ya esta inscripto al examen";
+                    }
+                    else
+                    {
+                        errorMsg = "No existe el estudiante seleccionado";
+                    }
+                }
+
                 if (!errorMsg.Equals(String.Empty))
                     throw new ValidacionException(errorMsg);
                 return true;
@@ -86,7 +101,7 @@ namespace BibliotecaBritanico.Modelo
                     errorMsg += "Fecha de inscripcion invalida \n";
                 if (examenEstudiante.CantCuotas < 1)
                     errorMsg += "Debe ingresar la cantidad de cuotas \n";
-                if (examenEstudiante.Precio < 1)
+                if (examenEstudiante.Precio < 1 && (examenEstudiante.Estudiante.Convenio == null || examenEstudiante.Estudiante.Convenio.ID < 1))
                     errorMsg += "Debe ingresar precio \n";
                 if (examenEstudiante.Funcionario.ID < 1)
                     errorMsg += "Debe asociar el examen a un funcionario \n";
@@ -156,7 +171,7 @@ namespace BibliotecaBritanico.Modelo
             {
                 ExamenEstudiante ultExamen = new ExamenEstudiante();
                 lstExamenEstudiante.OrderByDescending(e => e.Examen.AnioAsociado);
-                foreach(ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
                 {
                     ultExamen = examenEstudiante;
                     break;
@@ -183,7 +198,7 @@ namespace BibliotecaBritanico.Modelo
                     return null;
                 }
                 lstExamenEstudiante.OrderByDescending(e => e.Examen.AnioAsociado);
-                ExamenEstudiante ultExamen = new ExamenEstudiante();                
+                ExamenEstudiante ultExamen = new ExamenEstudiante();
                 foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
                 {
                     ultExamen = examenEstudiante;
@@ -242,6 +257,12 @@ namespace BibliotecaBritanico.Modelo
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
                     this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    this.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    this.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    this.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    this.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    this.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    this.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
 
                     this.LeerCuotas(strCon);
                     ok = true;
@@ -263,7 +284,7 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
-        private void LeerCuotas(string strCon)
+        public void LeerCuotas(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
             List<SqlParameter> lstParametros = new List<SqlParameter>();
@@ -316,7 +337,7 @@ namespace BibliotecaBritanico.Modelo
                 this.ID = 0;
                 this.ID = (int)Herramientas.ObtenerNumerador("EXAMES", strCon);
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sqlGrupo = "INSERT INTO ExamenEstudiante VALUES (@ID, @ExamenID, @GrupoID, @EstudianteID, @FechaInscripcion, @NotaFinal, @NotaFinalLetra, @Aprobado, @CantCuotas, @FormaPago, @Pago, @Precio, @FuncionarioID);";
+                string sqlGrupo = "INSERT INTO ExamenEstudiante VALUES (@ID, @ExamenID, @GrupoID, @EstudianteID, @FechaInscripcion, @NotaFinal, @NotaFinalLetra, @Aprobado, @CantCuotas, @FormaPago, @Pago, @Precio, @FuncionarioID, 0, 0, 0, 0, 0, 0);";
                 int res = 0;
                 res = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sqlGrupo, lstParametros, CommandType.Text, tran));
                 if (res > 0)
@@ -357,7 +378,7 @@ namespace BibliotecaBritanico.Modelo
             SqlTransaction tran = null;
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE ExamenEstudiante SET FechaInscripcion = @FechaInscripcion, NotaFinal = @NotaFinal, NotaFinalLetra = @NotaFinalLetra, Aprobado = @Aprobado, CantCuotas = @CantCuotas, FormaPago = @FormaPago, Pago = @Pago, Precio = @Precio WHERE ID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID;";
+            string sql = "UPDATE ExamenEstudiante SET FechaInscripcion = @FechaInscripcion, NotaFinal = @NotaFinal, NotaFinalLetra = @NotaFinalLetra, Aprobado = @Aprobado, CantCuotas = @CantCuotas, FormaPago = @FormaPago, Pago = @Pago, Precio = @Precio, FaltasEnClase = @FaltasEnClase, NotaFinalListening = @NotaFinalListening, NotaFinalOral = @NotaFinalOral, NotaFinalWritting = @NotaFinalWritting WHERE ID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID;";
             try
             {
                 con.Open();
@@ -475,6 +496,12 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
                     examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    examenEstudiante.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    examenEstudiante.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    examenEstudiante.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    examenEstudiante.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    examenEstudiante.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
 
                     examenEstudiante.LeerCuotas(strCon);
                     lstExamenes.Add(examenEstudiante);
@@ -512,6 +539,10 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@Pago", this.Pago));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
             lstParametros.Add(new SqlParameter("@FuncionarioID", this.FuncionarioID));
+            lstParametros.Add(new SqlParameter("@FaltasEnClase", this.FaltasEnClase));
+            lstParametros.Add(new SqlParameter("@NotaFinalListening", this.NotaFinalListening));
+            lstParametros.Add(new SqlParameter("@NotaFinalOral", this.NotaFinalOral));
+            lstParametros.Add(new SqlParameter("@NotaFinalWritting", this.NotaFinalWritting));
             return lstParametros;
         }
 
@@ -566,6 +597,12 @@ namespace BibliotecaBritanico.Modelo
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
                     this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    this.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    this.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    this.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    this.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    this.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    this.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
 
                     this.LeerCuotas(strCon);
                     ok = true;
@@ -614,6 +651,12 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
                     examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    examenEstudiante.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    examenEstudiante.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    examenEstudiante.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    examenEstudiante.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    examenEstudiante.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
 
                     examenEstudiante.LeerCuotas(strCon);
                     lstExamenes.Add(examenEstudiante);
@@ -665,6 +708,12 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
                     examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
                     examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    examenEstudiante.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    examenEstudiante.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    examenEstudiante.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    examenEstudiante.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    examenEstudiante.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
 
                     examenEstudiante.LeerCuotas(strCon);
                     lstExamenes.Add(examenEstudiante);
@@ -685,6 +734,308 @@ namespace BibliotecaBritanico.Modelo
             }
             return lstExamenes;
         }
+
+        public static List<ExamenEstudiante> GetNoPagosByEstudiante(Estudiante estudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<ExamenEstudiante> lstExamenes = new List<ExamenEstudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
+            string sql = "SELECT * FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID AND Pago = 0;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    ExamenEstudiante examenEstudiante = new ExamenEstudiante();
+                    examenEstudiante.ID = Convert.ToInt32(reader["ID"]);
+                    examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
+                    examenEstudiante.Examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.Leer(strCon);
+                    examenEstudiante.Estudiante = estudiante;
+                    examenEstudiante.FechaInscripcion = Convert.ToDateTime(reader["FechaInscripcion"]);
+                    examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);
+                    examenEstudiante.NotaFinalLetra = reader["NotaFinalLetra"].ToString();
+                    examenEstudiante.Aprobado = Convert.ToBoolean(reader["Aprobado"]);
+                    examenEstudiante.CantCuotas = Convert.ToInt32(reader["CantCuotas"]);
+                    examenEstudiante.FormaPago = (FormaPago)Convert.ToInt32(reader["FormaPago"]);
+                    examenEstudiante.Pago = Convert.ToBoolean(reader["Pago"]);
+                    examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    examenEstudiante.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    examenEstudiante.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    examenEstudiante.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    examenEstudiante.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    examenEstudiante.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
+
+                    examenEstudiante.LeerCuotas(strCon);
+                    lstExamenes.Add(examenEstudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstExamenes;
+        }
+
+        public static List<ExamenEstudiante> GetByExamen(Examen examen, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<ExamenEstudiante> lstExamenes = new List<ExamenEstudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ExamenID", examen.ID));
+            lstParametros.Add(new SqlParameter("@GrupoID", examen.GrupoID));
+            string sql = "SELECT * FROM ExamenEstudiante WHERE ExamenID = @ExamenID AND GrupoID = @GrupoID;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    ExamenEstudiante examenEstudiante = new ExamenEstudiante();
+                    examenEstudiante.ID = Convert.ToInt32(reader["ID"]);
+                    examenEstudiante.Examen = examen;
+                    examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
+                    examenEstudiante.Estudiante.ID = Convert.ToInt32(reader["EstudianteID"]);
+                    examenEstudiante.Estudiante.Leer(strCon);
+                    examenEstudiante.FechaInscripcion = Convert.ToDateTime(reader["FechaInscripcion"]);
+                    examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);
+                    examenEstudiante.NotaFinalLetra = reader["NotaFinalLetra"].ToString();
+                    examenEstudiante.Aprobado = Convert.ToBoolean(reader["Aprobado"]);
+                    examenEstudiante.CantCuotas = Convert.ToInt32(reader["CantCuotas"]);
+                    examenEstudiante.FormaPago = (FormaPago)Convert.ToInt32(reader["FormaPago"]);
+                    examenEstudiante.Pago = Convert.ToBoolean(reader["Pago"]);
+                    examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FaltasEnClase = Convert.ToDecimal(reader["FaltasEnClase"]);
+                    examenEstudiante.NotaFinalListening = Convert.ToDecimal(reader["NotaFinalListening"]);
+                    examenEstudiante.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
+                    examenEstudiante.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
+                    examenEstudiante.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    examenEstudiante.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
+
+                    examenEstudiante.LeerCuotas(strCon);
+                    lstExamenes.Add(examenEstudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstExamenes;
+        }
+
+        public static bool AsignarResultadoByLista(List<ExamenEstudiante> lstExamenEstudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            SqlTransaction tran = null;
+            bool SeModifico = false;
+            string sql = "";
+            try
+            {
+                con.Open();
+                tran = con.BeginTransaction();
+                foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                {
+                    List<SqlParameter> lstParametros = new List<SqlParameter>();
+                    lstParametros.Add(new SqlParameter("@ID", examenEstudiante.ID));
+                    lstParametros.Add(new SqlParameter("@ExamenID", examenEstudiante.Examen.ID));
+                    lstParametros.Add(new SqlParameter("@GrupoID", examenEstudiante.Examen.GrupoID));
+                    lstParametros.Add(new SqlParameter("@EstudianteID", examenEstudiante.Estudiante.ID));
+                    lstParametros.Add(new SqlParameter("@NotaFinal", examenEstudiante.NotaFinal));
+                    lstParametros.Add(new SqlParameter("@NotaFinalLetra", examenEstudiante.NotaFinalLetra));
+                    lstParametros.Add(new SqlParameter("@Aprobado", examenEstudiante.Aprobado));
+                    lstParametros.Add(new SqlParameter("@FaltasEnClase", examenEstudiante.FaltasEnClase));
+                    lstParametros.Add(new SqlParameter("@NotaFinalListening", examenEstudiante.NotaFinalListening));
+                    lstParametros.Add(new SqlParameter("@NotaFinalOral", examenEstudiante.NotaFinalOral));
+                    lstParametros.Add(new SqlParameter("@NotaFinalWritting", examenEstudiante.NotaFinalWritting));
+                    lstParametros.Add(new SqlParameter("@InternalAssessment", examenEstudiante.InternalAssessment));
+
+                    sql = "UPDATE ExamenEstudiante SET NotaFinal = @NotaFinal, NotaFinalLetra = @NotaFinalLetra, Aprobado = @Aprobado, FaltasEnClase = @FaltasEnClase, NotaFinalListening = @NotaFinalListening, NotaFinalOral = @NotaFinalOral, NotaFinalWritting = @NotaFinalWritting, InternalAssessment = @InternalAssessment WHERE ID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID;";
+                    Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                    Grupo.SetInactivo(examenEstudiante.Examen.GrupoID, con, tran);
+                }
+
+                //marco el examen como calificado
+                //todos los examen estudiante tienen el mismo examen
+                Examen examen = lstExamenEstudiante[0].Examen;
+                string sqlExamen = "UPDATE Examen SET Calificado = 1 WHERE ID = @ExamenID AND GrupoID = @GrupoID;";
+                List<SqlParameter> lstParametrosExamen = new List<SqlParameter>();
+                lstParametrosExamen.Add(new SqlParameter("@ExamenID", examen.ID));
+                lstParametrosExamen.Add(new SqlParameter("@GrupoID", examen.GrupoID));
+                Persistencia.EjecutarNoQuery(con, sqlExamen, lstParametrosExamen, CommandType.Text, tran);
+
+                foreach (ExamenEstudiante examenEstudianteAux in lstExamenEstudiante)
+                {
+                    examenEstudianteAux.Estudiante.BorrarGrupo(con, tran);
+                }
+
+                tran.Commit();
+                SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                tran.Rollback();
+                tran.Dispose();
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                tran.Dispose();
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return SeModifico;
+        }
+
+        public bool PagarCuota(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            lstParametros.Add(new SqlParameter("@ExamenID", this.Examen.ID));
+            lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
+            lstParametros.Add(new SqlParameter("@CuotaID", this.LstCuotas[0].ID));
+            lstParametros.Add(new SqlParameter("@Precio", this.LstCuotas[0].Precio));
+            lstParametros.Add(new SqlParameter("@FechaPago", DateTime.Now));
+            string sql = "UPDATE ExamenEstudianteCuota SET Precio = @Precio, FechaPago = @FechaPago, CuotaPaga = 1 WHERE ID = @CuotaID AND ExamenEstudianteID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID;";
+            try
+            {
+                con.Open();
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                if (res > 0)
+                {
+                    SeModifico = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return SeModifico;
+        }
+
+        public static bool Anular(List<ExamenEstudiante> lstExamenEstudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            SqlTransaction tran = null;
+            bool SeModifico = false;
+            try
+            {
+                con.Open();
+                tran = con.BeginTransaction();
+                foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                {
+                    List<SqlParameter> lstParametros = new List<SqlParameter>();
+                    lstParametros.Add(new SqlParameter("@ID", examenEstudiante.ID));
+                    string sql = "UPDATE ExamenEstudiante SET Anulado = 1 WHERE ID = @ID;";
+                    int res = 0;
+                    res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                    if (res > 0)
+                    {
+                        List<SqlParameter> lstParametrosExamenEstudianteCuota = new List<SqlParameter>();
+                        lstParametrosExamenEstudianteCuota.Add(new SqlParameter("ID", examenEstudiante.ID));
+                        string sqlCuotas = "DELETE * FROM ExamenEstudianteCuota WHERE CuotaPaga = 0 AND ExamenEstudianteID = @ID;";
+                        Persistencia.EjecutarNoQuery(con, sqlCuotas, lstParametrosExamenEstudianteCuota, CommandType.Text, tran);
+
+                    }
+                }
+                tran.Commit();
+                SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                tran.Rollback();
+                tran.Dispose();
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                tran.Dispose();
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return SeModifico;
+        }
+
+        public static bool Anular(List<ExamenEstudiante> lstExamenEstudiante, SqlConnection con, SqlTransaction tran)
+        {
+            bool SeModifico = false;
+            try
+            {
+                foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                {
+                    List<SqlParameter> lstParametros = new List<SqlParameter>();
+                    lstParametros.Add(new SqlParameter("@ID", examenEstudiante.ID));
+                    string sql = "UPDATE ExamenEstudiante SET Anulado = 1 WHERE ID = @ID;";
+                    int res = 0;
+                    res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                    if (res > 0)
+                    {
+                        List<SqlParameter> lstParametrosExamenEstudianteCuota = new List<SqlParameter>();
+                        lstParametrosExamenEstudianteCuota.Add(new SqlParameter("ID", examenEstudiante.ID));
+                        string sqlCuotas = "DELETE FROM ExamenEstudianteCuota WHERE CuotaPaga = 0 AND ExamenEstudianteID = @ID;";
+                        Persistencia.EjecutarNoQuery(con, sqlCuotas, lstParametrosExamenEstudianteCuota, CommandType.Text, tran);
+
+                    }
+                }
+                SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
 
         #endregion
 

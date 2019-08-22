@@ -117,6 +117,72 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/GetExamenEstudianteCuota/1
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<ExamenEstudiante> GetExamenEstudianteCuota(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = id
+                    };
+                    ExamenEstudiante examenEstudiante = Fachada.ObtenerExamenEstudianteCuotas(estudiante);
+                    if (estudiante == null)
+                    {
+                        return BadRequest("El estudiante no esta anotado a ningun examen");
+                    }
+                    return examenEstudiante;
+                }
+                else
+                {
+                    return BadRequest("Id de estudiante no puede ser vacío");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/GetEscolaridad/1
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<DatosEscolaridad>> GetEscolaridad(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = id
+                    };
+                    List<DatosEscolaridad> lstDatosEstolaridad = Fachada.ObtenerEscolaridad(estudiante);
+                    if (lstDatosEstolaridad.Count < 1)
+                    {
+                        return BadRequest("El estudiante no tiene datos registrados");
+                    }
+                    return lstDatosEstolaridad;
+                }
+                else
+                {
+                    return BadRequest("Id de estudiante no puede ser vacío");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/ExisteEstudiante/131515
         [HttpGet("{ci}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -146,11 +212,11 @@ namespace APIBritanico.Controllers
         }
 
 
-        //// GET: api/estudiante/getbyid/1
+        //// GET: api/estudiante/GetConMensualidades/1,23232,2019
         [HttpGet("{id:int},{ci},{anioAsociado:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Estudiante> GetConMensualidades(int id,string ci, int anioAsociado)
+        public ActionResult<Estudiante> GetConMensualidades(int id, string ci, int anioAsociado)
         {
             try
             {
@@ -198,7 +264,25 @@ namespace APIBritanico.Controllers
         }
 
 
-        //// GET: api/estudiante/getbynombre/
+        //// GET: api/estudiante/GetDeudores/
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetDeudores()
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesDeudores();
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/getbynombre/qweqwe
         [HttpGet("{nombre}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -225,7 +309,7 @@ namespace APIBritanico.Controllers
         }
 
 
-        //// GET: api/estudiante/getbyconvenio/
+        //// GET: api/estudiante/getbyconvenio/2323
         [HttpGet("{convenioID:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -287,6 +371,24 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/estudiante/getallnoactivos/
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Estudiante>> GetAllNoActivos()
+        {
+            try
+            {
+                List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesNoActivos();
+                return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/estudiante/GetAllNoValidados/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -327,6 +429,32 @@ namespace APIBritanico.Controllers
                 {
                     return estudiante;
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// POST api/estudiante/DarDeBaja/1,8
+        [HttpPost("{id:int},{mes:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> DarDeBaja(int id, int mes)
+        {
+            try
+            {
+                if (id < 1 || mes < 1)
+                {
+                    return BadRequest("ID y mes no pueden ser vacíos");
+                }
+                Estudiante estudiante = new Estudiante
+                {
+                    ID = id
+                };
+                bool ret = Fachada.DarBajaEstudiante(estudiante, mes);
+                return ret;
             }
             catch (Exception ex)
             {

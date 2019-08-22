@@ -17,7 +17,7 @@ namespace APIBritanico.Controllers
         private Fachada_001 Fachada { get; } = Fachada_001.getInstancia();
 
 
-        //// GET: api/examenEstudiante/getbyid/1
+        //// GET: api/examenEstudiante/getbyid/1,1,1,1
         [HttpGet("{id:int},{examenID:int},{grupoID:int},{estudianteID:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -33,7 +33,7 @@ namespace APIBritanico.Controllers
                     };
                     Examen examen = new Examen
                     {
-                        ID = id
+                        ID = examenID
                     };
                     Estudiante estudiante = new Estudiante
                     {
@@ -66,6 +66,39 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/examenEstudiante/GetByEstudiante/1
+        [HttpGet("{estudianteID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<ExamenEstudiante>> GetNoPagosByEstudiante(int estudianteID)
+        {
+            try
+            {
+                if (estudianteID > 0)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = estudianteID
+                    };
+                    List<ExamenEstudiante> lstExamenEstudiante = Fachada.GetExamenesNoPagosByEstudiante(estudiante);
+                    if (lstExamenEstudiante == null || lstExamenEstudiante.Count < 1)
+                    {
+                        return BadRequest("No existen examenes sin pagar");
+                    }
+                    return lstExamenEstudiante;
+                }
+                else
+                {
+                    return BadRequest("ID de estudiante no puede ser vacío");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/examenEstudiante/getall/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -75,6 +108,34 @@ namespace APIBritanico.Controllers
             try
             {
                 List<ExamenEstudiante> lstExamenes = Fachada.ObtenerExamenEstudiantes();
+                return lstExamenes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/examenEstudiante/GetAllByExamen/1,1
+        [HttpGet("{examenID:int},{grupoID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<ExamenEstudiante>> GetAllByExamen(int examenID, int grupoID)
+        {
+            try
+            {
+                Grupo grupo = new Grupo
+                {
+                    ID = grupoID
+                };
+                Examen examen = new Examen
+                {
+                    ID = examenID,
+                    GrupoID = grupoID,
+                    Grupo = grupo
+                };
+                List<ExamenEstudiante> lstExamenes = Fachada.GetExamenEstudianteByExamen(examen);
                 return lstExamenes;
             }
             catch (Exception ex)
@@ -145,6 +206,89 @@ namespace APIBritanico.Controllers
                     ID = examenEstudiante.FuncionarioID
                 };
                 if (Fachada.ModificarExamenEstudiante(examenEstudiante))
+                {
+                    return true;
+                }
+                else
+                {
+                    return BadRequest(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// PUT api/examenEstudiante/ModificarByLista/
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> AsignarResultado([FromBody]List<ExamenEstudiante> lstData)
+        {
+            try
+            {
+                List<ExamenEstudiante> lstExamenEstudiante = (List<ExamenEstudiante>)lstData;
+                if (lstExamenEstudiante == null || lstExamenEstudiante.Count < 1)
+                {
+                    return BadRequest("Debe enviar la lista de exámenes");
+                }
+
+                foreach (ExamenEstudiante examenEstudiante in lstExamenEstudiante)
+                {
+                    if (examenEstudiante.Examen == null || examenEstudiante.Examen.ID < 1 || examenEstudiante.ID < 1 ||
+                    examenEstudiante.Examen.GrupoID < 1 || examenEstudiante.Estudiante.ID < 1)
+                    {
+                        return BadRequest("Datos de los exámenes no son válidos");
+                    }
+                }
+
+                if (Fachada.AsignarResultadoListaExamenEstudiante(lstExamenEstudiante))
+                {
+                    return true;
+                }
+                else
+                {
+                    return BadRequest(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// PUT api/examenEstudiante/ModificarByLista/
+        [HttpPut("{id:int},{examenID:int},{grupoID:int},{idCuota:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> PagarCuota(int id, int examenID, int grupoID, int idCuota, decimal precio)
+        {
+            try
+            {
+                if (id < 1 || examenID < 1 || grupoID < 1 || idCuota < 1 || precio < 1)
+                {
+                    return BadRequest("Debe enviar los datos de la cuota");
+                }
+                Examen examen = new Examen
+                {
+                    ID = examenID,
+                    GrupoID = grupoID
+                };
+                ExamenEstudiante examenEstudiante = new ExamenEstudiante
+                {
+                    ID = id,
+                    Examen = examen
+                };
+                examenEstudiante.LstCuotas.Add(new ExamenEstudianteCuota
+                {
+                    ID = idCuota,
+                    Precio = precio
+                });
+
+                if (Fachada.PagarCuotaExamenEstudiante(examenEstudiante))
                 {
                     return true;
                 }

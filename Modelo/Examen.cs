@@ -97,7 +97,8 @@ namespace BibliotecaBritanico.Modelo
                     Examen examenAux = new Examen
                     {
                         ID = examen.ID,
-                        Grupo = examen.Grupo
+                        Grupo = examen.Grupo,
+                        GrupoID = examen.GrupoID
                     };
                     examenAux.LeerLazy(strCon);
                     if (examenAux.AnioAsociado != examen.AnioAsociado)
@@ -257,6 +258,7 @@ namespace BibliotecaBritanico.Modelo
                     this.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     this.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
                     //this.Grupo.Leer(strCon);
+                    this.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
                     this.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
                     this.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
                     this.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
@@ -648,7 +650,16 @@ namespace BibliotecaBritanico.Modelo
                     if (encuentroExamen)
                     {
                         lstExamenes.Clear();
-                        lstExamenes.Add(examen);
+                        ExamenEstudiante examenEstudianteAux = new ExamenEstudiante
+                        {
+                            ID = 0,
+                            Estudiante = estudiante,
+                            Examen = examen
+                        };
+                        if (!ExamenEstudiante.ExisteExamenEstudiante(examenEstudianteAux, strCon))
+                        {
+                            lstExamenes.Add(examen);
+                        }                        
                     }
                 }
             }

@@ -18,6 +18,9 @@ namespace BibliotecaBritanico.Modelo
         public int SucursalID { get; set; }
         public string Nombre { get; set; }
         public decimal Precio { get; set; }
+        public decimal NotaFinalOralMax { get; set; }
+        public decimal NotaFinalWrittingMax { get; set; }
+        public decimal NotaFinalListeningMax { get; set; }
         //public List<Libro> LstLibros { get; set; } = new List<Libro>(); //el libro tiene su materia
 
 
@@ -44,9 +47,10 @@ namespace BibliotecaBritanico.Modelo
             Materia materiaAux = new Materia
             {
                 ID = 0,
-                Nombre = materia.Nombre
+                Nombre = materia.Nombre,
+                SucursalID = materia.SucursalID
             };
-            if (errorMsg.Equals(String.Empty) && materiaAux.LeerLazy(strCon))
+            if (errorMsg.Equals(String.Empty) && Materia.ExisteMateria(materiaAux, strCon))
             {
                 errorMsg += "Ya existe la materia: " + materiaAux.Nombre.ToUpper().Trim();
             }
@@ -102,6 +106,54 @@ namespace BibliotecaBritanico.Modelo
             return true;
         }
 
+        public static bool ExisteMateria(Materia materia, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool ok = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            SqlDataReader reader = null;
+            string sql = "";
+
+            if (materia.ID > 0)
+            {
+                sql = "SELECT * FROM Materia WHERE ID = @ID";
+                lstParametros.Add(new SqlParameter("@ID", materia.ID));
+            }
+            else if (!materia.Nombre.Equals(String.Empty))
+            {
+                sql = "SELECT * FROM Materia WHERE Nombre = @Nombre AND SucursalID = @SucursalID";
+                lstParametros.Add(new SqlParameter("@Nombre", materia.Nombre));
+                lstParametros.Add(new SqlParameter("@SucursalID", materia.SucursalID));
+            }
+            else
+            {
+                throw new ValidacionException("Datos insuficientes para buscar a la Materia");
+            }
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    ok = true;
+                    break;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return ok;
+        }
 
         #region Persistencia
 
@@ -138,6 +190,9 @@ namespace BibliotecaBritanico.Modelo
                         this.Nombre = reader["Nombre"].ToString().Trim();
                         this.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                         this.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                        this.NotaFinalListeningMax = Convert.ToDecimal(reader["NotaFinalListeningMax"]);
+                        this.NotaFinalOralMax = Convert.ToDecimal(reader["NotaFinalOralMax"]);
+                        this.NotaFinalWrittingMax = Convert.ToDecimal(reader["NotaFinalWrittingMax"]);
                         this.Precio = Convert.ToDecimal(reader["Precio"]);
                         ok = true;
                     }
@@ -170,7 +225,7 @@ namespace BibliotecaBritanico.Modelo
                 if (this.ID > 0)
                 {
                     List<SqlParameter> lstParametros = this.ObtenerParametros();
-                    string sql = "INSERT INTO Materia VALUES (@ID, @SucursalID, @Nombre, @Precio);";
+                    string sql = "INSERT INTO Materia VALUES (@ID, @SucursalID, @Nombre, @Precio, @NotaFinalOralMax, @NotaFinalWrittingMax, @NotaFinalListeningMax);";
                     int ret = 0;
                     ret = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null));
                     if (ret > 0) seGuardo = true;
@@ -192,7 +247,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Materia SET SucursalID = @SucursalID, Nombre = @Nombre, Precio = @Precio WHERE ID = @ID;";
+            string sql = "UPDATE Materia SET SucursalID = @SucursalID, Nombre = @Nombre, Precio = @Precio, NotaFinalWrittingMax = @NotaFinalWrittingMax, NotaFinalOralMax = @NotaFinalOralMax, NotaFinalListeningMax = @NotaFinalListeningMax WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -253,6 +308,9 @@ namespace BibliotecaBritanico.Modelo
                     materia.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     materia.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     materia.Precio = Convert.ToDecimal(reader["Precio"]);
+                    materia.NotaFinalListeningMax = Convert.ToDecimal(reader["NotaFinalListeningMax"]);
+                    materia.NotaFinalOralMax = Convert.ToDecimal(reader["NotaFinalOralMax"]);
+                    materia.NotaFinalWrittingMax = Convert.ToDecimal(reader["NotaFinalWrittingMax"]);
                     lstMaterias.Add(materia);
                 }
             }
@@ -279,6 +337,9 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@SucursalID", this.SucursalID));
             lstParametros.Add(new SqlParameter("@Nombre", this.Nombre));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
+            lstParametros.Add(new SqlParameter("@NotaFinalWrittingMax", this.NotaFinalWrittingMax));
+            lstParametros.Add(new SqlParameter("@NotaFinalOralMax", this.NotaFinalOralMax));
+            lstParametros.Add(new SqlParameter("@NotaFinalListeningMax", this.NotaFinalListeningMax));
             return lstParametros;
         }
 
@@ -315,6 +376,9 @@ namespace BibliotecaBritanico.Modelo
                     this.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     this.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
+                    this.NotaFinalListeningMax = Convert.ToDecimal(reader["NotaFinalListeningMax"]);
+                    this.NotaFinalOralMax = Convert.ToDecimal(reader["NotaFinalOralMax"]);
+                    this.NotaFinalWrittingMax = Convert.ToDecimal(reader["NotaFinalWrittingMax"]);
                     ok = true;
                 }
             }
@@ -352,6 +416,9 @@ namespace BibliotecaBritanico.Modelo
                     materia.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     materia.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     materia.Precio = Convert.ToDecimal(reader["Precio"]);
+                    materia.NotaFinalListeningMax = Convert.ToDecimal(reader["NotaFinalListeningMax"]);
+                    materia.NotaFinalOralMax = Convert.ToDecimal(reader["NotaFinalOralMax"]);
+                    materia.NotaFinalWrittingMax = Convert.ToDecimal(reader["NotaFinalWrittingMax"]);
                     lstMaterias.Add(materia);
                 }
             }

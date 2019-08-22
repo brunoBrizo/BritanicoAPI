@@ -87,7 +87,10 @@ CREATE TABLE Materia (
 ID NUMERIC (10),
 SucursalID NUMERIC (10) NOT NULL,
 Nombre VARCHAR (50) NOT NULL,
-Precio NUMERIC (10, 2)
+Precio NUMERIC (10, 2),
+NotaFinalOralMax NUMERIC (3),
+NotaFinalWrittingMax NUMERIC (3),
+NotaFinalListeningMax NUMERIC (3),
 
 CONSTRAINT PK_Materia PRIMARY KEY (ID),
 CONSTRAINT FK_Materia_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID)
@@ -143,7 +146,8 @@ FuncionarioID NUMERIC (10),
 HoraInicio CHARACTER (10),
 HoraFin CHARACTER (10),
 Precio NUMERIC (10, 2),
-Anio NUMERIC (4) NOT NULL
+Anio NUMERIC (4) NOT NULL,
+Activo BIT NOT NULL
 
 CONSTRAINT PK_Grupo PRIMARY KEY (ID, MateriaID),
 CONSTRAINT FK_Grupo_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID),
@@ -184,7 +188,8 @@ ConvenioID NUMERIC (10),
 GrupoID NUMERIC (10),
 MateriaID NUMERIC (10),
 Activo BIT NOT NULL,
-Validado BIT NOT NULL
+Validado BIT NOT NULL,
+Deudor BIT NOT NULL
 
 CONSTRAINT PK_Estudiante PRIMARY KEY (ID),
 CONSTRAINT FK_Estudiante_ConvenioID FOREIGN KEY (ConvenioID) REFERENCES Convenio (ID),
@@ -251,15 +256,16 @@ MesAsociado NUMERIC (2) NOT NULL,
 AnioAsociado NUMERIC (4) NOT NULL,
 FuncionarioID NUMERIC (10),
 Precio NUMERIC (10, 2),
-Paga BIT,
-FechaVencimiento DATETIME
+Paga BIT NOT NULL,
+FechaVencimiento DATETIME,
+Anulado BIT NOT NULL
 
 CONSTRAINT PK_Mensualidad PRIMARY KEY (ID),
 CONSTRAINT FK_Mensualidad_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID),
 CONSTRAINT FK_Mensualidad_EstudianteID FOREIGN KEY (EstudianteID) REFERENCES Estudiante (ID),
 CONSTRAINT FK_Mensualidad_GrupoID FOREIGN KEY (GrupoID, MateriaID) REFERENCES Grupo (ID, MateriaID),
 CONSTRAINT FK_Mensualidad_FuncionarioID FOREIGN KEY (FuncionarioID) REFERENCES Funcionario (ID),
-CONSTRAINT UK_Mensualidad UNIQUE (EstudianteID, MesAsociado, AnioAsociado)
+CONSTRAINT UK_Mensualidad UNIQUE (EstudianteID, MesAsociado, AnioAsociado, GrupoID)
 );
 GO
 CREATE INDEX IDX_Mensualidad_MesAsociado ON Mensualidad (MesAsociado);
@@ -332,7 +338,14 @@ CantCuotas NUMERIC (2),
 FormaPago NUMERIC (1),
 Pago BIT NOT NULL,
 Precio NUMERIC (10, 2),
-FuncionarioID NUMERIC (10)
+FuncionarioID NUMERIC (10),
+Anulado BIT NOT NULL
+FaltasEnClase NUMERIC (3),
+NotaFinalOral NUMERIC (3),
+NotaFinalWritting NUMERIC (3),
+NotaFinalListening NUMERIC (3),
+InternalAssessment NUMERIC (3)
+
 
 CONSTRAINT PK_ExamenEstudiante PRIMARY KEY (ID, ExamenID, GrupoID, EstudianteID),
 CONSTRAINT FK_ExamenEstudiante_ExamenID FOREIGN KEY (ExamenID, GrupoID) REFERENCES Examen (ID, GrupoID),

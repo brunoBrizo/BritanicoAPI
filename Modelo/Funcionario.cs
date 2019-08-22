@@ -270,7 +270,7 @@ namespace BibliotecaBritanico.Modelo
                         ID = 3
                     };
                     paramClave.Leer(strCon);
-                    await email.Enviar(strCon, paramEmail, paramClave);
+                    await email.Enviar(strCon, paramEmail, paramClave, String.Empty);
                     return true;
                 }
 

@@ -30,6 +30,7 @@ namespace BibliotecaBritanico.Modelo
         public decimal Precio { get; set; }
         public bool Paga { get; set; }
         public DateTime FechaVencimiento { get; set; }
+        public bool Anulado { get; set; }
         private static decimal Recargo { get; set; } // se hace privado para hacer un metodo static que si el recargo esta en 0, va a la base y lo carga y devuelve
 
         //un registro unico por estudiante + mes + anio
@@ -150,12 +151,13 @@ namespace BibliotecaBritanico.Modelo
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             SqlDataReader reader = null;
             string sql = "";
-            if (mensualidad.Estudiante.ID > 0 && mensualidad.MesAsociado > 0 && mensualidad.AnioAsociado > 0)
+            if (mensualidad.Estudiante.ID > 0 && mensualidad.MesAsociado > 0 && mensualidad.AnioAsociado > 0 && mensualidad.Grupo.ID > 0)
             {
-                sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND MesAsociado = @MesAsociado AND AnioAsociado = @AnioAsociado";
+                sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND MesAsociado = @MesAsociado AND AnioAsociado = @AnioAsociado AND GrupoID = @GrupoID";
                 lstParametros.Add(new SqlParameter("@EstudianteID", mensualidad.Estudiante.ID));
                 lstParametros.Add(new SqlParameter("@MesAsociado", mensualidad.MesAsociado));
                 lstParametros.Add(new SqlParameter("@AnioAsociado", mensualidad.AnioAsociado));
+                lstParametros.Add(new SqlParameter("@GrupoID", mensualidad.Grupo.ID));
             }
             else
             {
@@ -229,6 +231,34 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
+        public static void CalcularRecargo(List<Mensualidad> lstMensualidades, string strCon)
+        {
+            try
+            {
+                Parametro paramRecargo = new Parametro
+                {
+                    ID = 4
+                };
+                paramRecargo.Leer(strCon);
+                Mensualidad.Recargo = Convert.ToDecimal(paramRecargo.Valor);
+                foreach (Mensualidad mensualidad in lstMensualidades)
+                {
+                    if (DateTime.Now > mensualidad.FechaVencimiento && !mensualidad.Paga)
+                    {
+                        if (mensualidad.Estudiante.Convenio == null || mensualidad.Estudiante.Convenio.ID < 1)
+                            mensualidad.Precio += ((mensualidad.Precio * Mensualidad.Recargo) / 100);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region Persistencia
 
@@ -278,6 +308,7 @@ namespace BibliotecaBritanico.Modelo
                     this.Precio = Convert.ToDecimal(reader["Precio"]);
                     this.Paga = Convert.ToBoolean(reader["Paga"]);
                     this.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
+                    this.Anulado = Convert.ToBoolean(reader["Anulado"]);
                     ok = true;
                 }
             }
@@ -304,7 +335,7 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sql = "INSERT INTO Mensualidad VALUES (@SucursalID, @EstudianteID, @FechaHora, @GrupoID, @MateriaID, @MesAsociado, @AnioAsociado, @FuncionarioID, @Precio, @Paga, @FechaVencimiento); SELECT CAST (SCOPE_IDENTITY() AS INT);";
+                string sql = "INSERT INTO Mensualidad VALUES (@SucursalID, @EstudianteID, @FechaHora, @GrupoID, @MateriaID, @MesAsociado, @AnioAsociado, @FuncionarioID, @Precio, @Paga, @FechaVencimiento, 0); SELECT CAST (SCOPE_IDENTITY() AS INT);";
                 this.ID = 0;
                 this.ID = Convert.ToInt32(Persistencia.EjecutarScalar(con, sql, CommandType.Text, lstParametros, null));
                 if (this.ID > 0) seGuardo = true;
@@ -397,6 +428,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
                     mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
                     mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
+                    mensualidad.Anulado = Convert.ToBoolean(reader["Anulado"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -416,18 +448,18 @@ namespace BibliotecaBritanico.Modelo
             return lstMensualidades;
         }
 
-        public List<Mensualidad> GetAllByEstudianteGrupo(string strCon)
+        public List<Mensualidad> GetAllByEstudiante(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Mensualidad> lstMensualidades = new List<Mensualidad>();
-            string sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND GrupoID = @GrupoID AND MatriculaID = @MatriculaID;";
+            string sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND AnioAsociado = @AnioAsociado;";
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
-            lstParametros.Add(new SqlParameter("@GrupoID", this.GrupoID));
-            lstParametros.Add(new SqlParameter("@MatriculaID", this.MateriaID));
+            lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
             SqlDataReader reader = null;
             try
             {
+                this.Estudiante.Leer(strCon);
                 con.Open();
                 reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
                 while (reader.Read())
@@ -437,8 +469,8 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
                     mensualidad.SucursalID = Convert.ToInt32(reader["SucursalID"]);
                     mensualidad.Estudiante = this.Estudiante;
-                    mensualidad.GrupoID = this.GrupoID;
-                    mensualidad.MateriaID = this.MateriaID;
+                    mensualidad.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    mensualidad.MateriaID = Convert.ToInt32(reader["MateriaID"]);
                     mensualidad.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
                     mensualidad.MesAsociado = Convert.ToInt32(reader["MesAsociado"]);
                     mensualidad.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
@@ -447,6 +479,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
                     mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
                     mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
+                    mensualidad.Anulado = Convert.ToBoolean(reader["Anulado"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -480,6 +513,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@FuncionarioID", this.FuncionarioID));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
             lstParametros.Add(new SqlParameter("@Paga", this.Paga));
+            lstParametros.Add(new SqlParameter("@Anulado", this.Anulado));
             lstParametros.Add(new SqlParameter("@FechaVencimiento", this.FechaVencimiento));
             return lstParametros;
         }
@@ -534,6 +568,7 @@ namespace BibliotecaBritanico.Modelo
                     mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
                     mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
                     mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
+                    mensualidad.Anulado = Convert.ToBoolean(reader["Anulado"]);
                     lstMensualidades.Add(mensualidad);
                 }
             }
@@ -553,9 +588,92 @@ namespace BibliotecaBritanico.Modelo
             return lstMensualidades;
         }
 
+        public static bool PagarMensualidad(List<Mensualidad> lstMensualidades, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            SqlTransaction tran = null;
+            try
+            {
+                con.Open();
+                tran = con.BeginTransaction();
+                foreach (Mensualidad mensualidad in lstMensualidades)
+                {
+                    List<SqlParameter> lstParametros = new List<SqlParameter>();
+                    lstParametros.Add(new SqlParameter("@Precio", mensualidad.Precio));
+                    lstParametros.Add(new SqlParameter("@ID", mensualidad.ID));
+                    lstParametros.Add(new SqlParameter("@FuncionarioID", mensualidad.FuncionarioID));
+                    lstParametros.Add(new SqlParameter("@Fecha", DateTime.Now));
+                    string sql = "UPDATE Mensualidad SET Precio = @Precio, Paga = 1, FechaHora = @Fecha, FuncionarioID = @FuncionarioID WHERE ID = @ID;";
+                    int res = 0;
+                    res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                    if (res > 0)
+                    {
+                        SeModifico = true;
+                    }
+                    else
+                    {
+                        break;
+                        throw new Exception("No se pudo pagar una mensualidad. Intente nuevamente.");
+                    }
+                }
+                tran.Commit();
+            }
+            catch (SqlException ex)
+            {
+                tran.Rollback();
+                tran.Dispose();
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                tran.Dispose();
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return SeModifico;
+        }
+
+        public static bool AnularMensualidad(List<Mensualidad> lstMensualidades, SqlConnection con, SqlTransaction tran = null)
+        {
+            bool SeModifico = false;
+            try
+            {
+                foreach (Mensualidad mensualidad in lstMensualidades)
+                {
+                    List<SqlParameter> lstParametros = new List<SqlParameter>();
+                    lstParametros.Add(new SqlParameter("@ID", mensualidad.ID));
+                    string sql = "UPDATE Mensualidad SET Anulado = 1 WHERE ID = @ID;";
+                    int res = 0;
+                    res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                    if (res > 0)
+                    {
+                        SeModifico = true;
+                    }
+                    else
+                    {
+                        break;
+                        throw new Exception("No se pudo anular una mensualidad. Intente nuevamente.");
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
 
         #endregion
-
 
     }
 }

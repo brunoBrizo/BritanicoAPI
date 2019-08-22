@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fachada\Fachada_001.cs" />
+    <Compile Include="Modelo\DatosEscolaridad.cs" />
     <Compile Include="Modelo\Empresa.cs" />
     <Compile Include="Modelo\Estudiante.cs" />
     <Compile Include="Modelo\Convenio.cs" />
