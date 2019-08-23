@@ -13,7 +13,7 @@ namespace BibliotecaBritanico.Modelo
     public class ExamenEstudiante : Persistencia, IPersistencia<ExamenEstudiante>
     {
         public int ID { get; set; }
-        public Examen Examen { get; set; } //Examen tiene la lista tambien
+        public Examen Examen { get; set; }
         public Estudiante Estudiante { get; set; }
         public DateTime FechaInscripcion { get; set; }
         public decimal NotaFinal { get; set; }
@@ -61,19 +61,10 @@ namespace BibliotecaBritanico.Modelo
                     errorMsg += "Debe ingresar precio \n";
                 if (examenEstudiante.Funcionario.ID < 1)
                     errorMsg += "Debe asociar el examen a un funcionario \n";
-                if (errorMsg.Equals(String.Empty))
+                if (errorMsg.Equals(String.Empty) && ExamenEstudiante.ExisteExamenEstudiante(examenEstudiante, strCon))
                 {
-                    if (examenEstudiante.Estudiante.Leer(strCon))
-                    {
-                        if (examenEstudiante.Estudiante.GrupoID >= 1)
-                            errorMsg = "El estudiante ya esta inscripto al examen";
-                    }
-                    else
-                    {
-                        errorMsg = "No existe el estudiante seleccionado";
-                    }
+                    errorMsg = "El estudiante ya esta inscripto al examen";
                 }
-
                 if (!errorMsg.Equals(String.Empty))
                     throw new ValidacionException(errorMsg);
                 return true;

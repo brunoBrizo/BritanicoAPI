@@ -238,7 +238,6 @@ CONSTRAINT FK_MatriculaEstudiante_SucursalID FOREIGN KEY (SucursalID) REFERENCES
 CONSTRAINT FK_MatriculaEstudiante_EstudianteID FOREIGN KEY (EstudianteID) REFERENCES Estudiante (ID),
 CONSTRAINT FK_MatriculaEstudiante_GrupoID FOREIGN KEY (GrupoID, MateriaID) REFERENCES Grupo (ID, MateriaID),
 CONSTRAINT FK_MatriculaEstudiante_MateriaID FOREIGN KEY (MateriaID) REFERENCES Materia (ID),
-CONSTRAINT UK_MatriculaEstudiante_Estudiante_Matricula UNIQUE (EstudianteID, MatriculaID)
 );
 GO
 CREATE INDEX IDX_MatriculaEstudiante_FechaHora ON MatriculaEstudiante (FechaHora);

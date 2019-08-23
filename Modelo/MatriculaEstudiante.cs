@@ -64,9 +64,12 @@ namespace BibliotecaBritanico.Modelo
                 {
                     errorMsg += "Debe ingresar precio \n";
                 }
-                if (errorMsg.Equals(String.Empty) && MatriculaEstudiante.ExisteMatriculaEstudiante(matriculaEstudiante, strCon))
+                if (errorMsg.Equals(String.Empty))
                 {
-                    errorMsg = "Ya existe la matricula \n";
+                    if (matriculaEstudiante.Estudiante.GrupoID > 0)
+                    {
+                        errorMsg = "El estudiante ya esta inscripto a otro grupo \n";
+                    }
                 }
                 if (!errorMsg.Equals(String.Empty))
                 {
@@ -231,26 +234,43 @@ namespace BibliotecaBritanico.Modelo
         public bool Guardar(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
-            bool seGuardo = false;
+            SqlTransaction tran = null;
+            bool seGuardo = false;            
             try
             {
                 this.ID = 0;
                 this.ID = (int)Herramientas.ObtenerNumerador("MATRES", strCon);
+                con.Open();
+                tran = con.BeginTransaction();
                 if (this.ID > 0)
                 {
                     List<SqlParameter> lstParametros = this.ObtenerParametros();
                     string sql = "INSERT INTO MatriculaEstudiante VALUES (@ID, @MatriculaID, @SucursalID, @EstudianteID, @GrupoID, @MateriaID, @FechaHora, @FuncionarioID, @Descuento, @Precio);";
                     int res = 0;
-                    res = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null));
-                    if (res > 0) seGuardo = true;
+                    res = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran));
+                    if (res > 0 && this.Estudiante.SetActivo(con, tran))
+                    {
+                        seGuardo = true;
+                    }
+                    else
+                    {
+                        tran.Rollback();
+                        tran.Dispose();
+                        return false;
+                    }
                 }
+                tran.Commit();
             }
             catch (SqlException ex)
             {
+                tran.Rollback();
+                tran.Dispose();
                 throw ex;
             }
             catch (Exception ex)
             {
+                tran.Rollback();
+                tran.Dispose();
                 throw ex;
             }
             return seGuardo;
