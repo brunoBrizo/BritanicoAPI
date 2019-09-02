@@ -856,7 +856,7 @@ namespace BibliotecaBritanico.Modelo
             List<Estudiante> lstEstudiantes = new List<Estudiante>();
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@ConvenioID", convenio.ID));
-            string sql = "SELECT * FROM Estudiante WHERE ConvenioID = @ConvenioID;";
+            string sql = "SELECT * FROM Estudiante WHERE ConvenioID = @ConvenioID AND Activo = 1 AND GrupoID <> 0;";
             SqlDataReader reader = null;
             try
             {
@@ -1078,7 +1078,7 @@ namespace BibliotecaBritanico.Modelo
         private static List<Estudiante> GetDeudoresMensualidad(List<Estudiante> lstEstudiantes, string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
-            string sql = "SELECT DISTINCT EstudianteID FROM Mensualidad WHERE Paga = 0 AND FechaVencimiento < @Fecha";
+            string sql = "SELECT DISTINCT EstudianteID FROM Mensualidad WHERE Paga = 0 AND FechaVencimiento < @Fecha AND Anulado = 0";
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@Fecha", DateTime.Now));
             SqlDataReader reader = null;
@@ -1151,8 +1151,7 @@ namespace BibliotecaBritanico.Modelo
             ExamenEstudiante examenEstudiante = null;
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
-            lstParametros.Add(new SqlParameter("@GrupoID", estudiante.GrupoID));
-            string sql = "SELECT * FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID AND GrupoID = @GrupoID;";
+            string sql = "SELECT * FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID AND Pago = 0 AND Anulado = 0 AND ID = (SELECT MIN(ID) FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID AND Pago = 0 AND Anulado = 0);";
             SqlDataReader reader = null;
             try
             {
@@ -1172,6 +1171,58 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);
                     examenEstudiante.NotaFinalLetra = reader["NotaFinalLetra"].ToString();
                     examenEstudiante.Aprobado = Convert.ToBoolean(reader["Aprobado"]);
+                    examenEstudiante.CantCuotas = Convert.ToInt32(reader["CantCuotas"]);
+                    examenEstudiante.FormaPago = (FormaPago)Convert.ToInt32(reader["FormaPago"]);
+                    examenEstudiante.Pago = Convert.ToBoolean(reader["Pago"]);
+                    examenEstudiante.Precio = Convert.ToDecimal(reader["Precio"]);
+                    examenEstudiante.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    examenEstudiante.LeerCuotas(strCon);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return examenEstudiante;
+        }
+
+        public static ExamenEstudiante GetExamenEstudiantePorRendir(Estudiante estudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            ExamenEstudiante examenEstudiante = null;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
+            lstParametros.Add(new SqlParameter("@Anio", DateTime.Now.Year));
+            lstParametros.Add(new SqlParameter("@FechaHora", DateTime.Now));
+            string sql = "SELECT * FROM ExamenEstudiante WHERE Anulado = 0 AND Aprobado = 0 AND EstudianteID = @EstudianteID AND ExamenID IN (SELECT ID FROM Examen WHERE AnioAsociado = @Anio AND FechaHora >= @FechaHora AND Calificado = 0);";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    examenEstudiante = new ExamenEstudiante();
+                    examenEstudiante.ID = Convert.ToInt32(reader["ID"]);
+                    examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
+                    examenEstudiante.Examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.LeerLazy(strCon);
+                    examenEstudiante.Estudiante = estudiante;
+                    examenEstudiante.FechaInscripcion = Convert.ToDateTime(reader["FechaInscripcion"]);
+                    examenEstudiante.NotaFinal = Convert.ToDecimal(reader["NotaFinal"]);
+                    examenEstudiante.NotaFinalLetra = reader["NotaFinalLetra"].ToString();
+                    examenEstudiante.Aprobado = false;
                     examenEstudiante.CantCuotas = Convert.ToInt32(reader["CantCuotas"]);
                     examenEstudiante.FormaPago = (FormaPago)Convert.ToInt32(reader["FormaPago"]);
                     examenEstudiante.Pago = Convert.ToBoolean(reader["Pago"]);
@@ -1250,7 +1301,7 @@ namespace BibliotecaBritanico.Modelo
                     ExamenEstudiante.Anular(lstExamenEstudiante, con, tran);
                 }
                 bool debeMensualidad = this.DebeMensualidad(con, tran, mes);
-                string sqlEstudiante = "UPDATE Estudiante SET GrupoID = 0, MateriaID = 0, Activo = 0, Deudor = @Deudor WHERE ID = @ID";
+                string sqlEstudiante = "UPDATE Estudiante SET GrupoID = 0, MateriaID = 0, Activo = 0, Deudor = @Deudor, ConvenioID = 0 WHERE ID = @ID";
                 List<SqlParameter> lstParametrosEstudiante = new List<SqlParameter>();
                 lstParametrosEstudiante.Add(new SqlParameter("@ID", this.ID));
                 lstParametrosEstudiante.Add(new SqlParameter("@Deudor", debeMensualidad));
@@ -1311,13 +1362,120 @@ namespace BibliotecaBritanico.Modelo
             return esDeudor;
         }
 
+        public bool DebeMensualidad(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool esDeudor = false;
+            string sql = "SELECT * FROM Mensualidad WHERE Paga = 0 AND FechaVencimiento < @FechaActual AND EstudianteID = @EstudianteID AND Anulado = 0";
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@FechaActual", DateTime.Now));
+            lstParametros.Add(new SqlParameter("@EstudianteID", this.ID));
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = this.EjecutarConsulta(con, sql, lstParametros, CommandType.Text, null);
+                while (reader.Read())
+                {
+                    esDeudor = true;
+                    break;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return esDeudor;
+        }
+
+        public bool ValidarDebeMensualidadEnMatricula(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool esDeudor = false;
+            string sql = "SELECT * FROM Mensualidad WHERE Paga = 0 AND FechaVencimiento < @FechaActual AND EstudianteID = @EstudianteID AND Anulado = 0 AND GrupoID <> @GrupoID AND MateriaID <> @MateriaID";
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@FechaActual", DateTime.Now));
+            lstParametros.Add(new SqlParameter("@EstudianteID", this.ID));
+            lstParametros.Add(new SqlParameter("@MateriaID", this.ID));
+            lstParametros.Add(new SqlParameter("@GrupoID", this.ID));
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = this.EjecutarConsulta(con, sql, lstParametros, CommandType.Text, null);
+                while (reader.Read())
+                {
+                    esDeudor = true;
+                    break;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return esDeudor;
+        }
+
+        public bool DebeExamen(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool esDeudor = false;
+            string sql = "SELECT * FROM ExamenEstudiante WHERE ID IN (SELECT EE.ID FROM Examen E, ExamenEstudiante EE WHERE E.AnioAsociado < @Anio AND E.ID = EE.ExamenID AND E.GrupoID = EE.GrupoID) AND EstudianteID = @EstudianteID AND Pago = 0 AND Anulado = 0";
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@Anio", DateTime.Now.Year));
+            lstParametros.Add(new SqlParameter("@EstudianteID", this.ID));
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = this.EjecutarConsulta(con, sql, lstParametros, CommandType.Text, null);
+                while (reader.Read())
+                {
+                    esDeudor = true;
+                    break;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return esDeudor;
+        }
+
         public static List<DatosEscolaridad> GetEscolaridad(Estudiante estudiante, string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
             List<DatosEscolaridad> lstDatosEscolaridad = new List<DatosEscolaridad>();
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
-            string sql = "SELECT * FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID;";
+            string sql = "SELECT * FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID AND Anulado = 0;";
             SqlDataReader reader = null;
             try
             {
@@ -1396,6 +1554,36 @@ namespace BibliotecaBritanico.Modelo
             catch (Exception ex)
             {
                 throw ex;
+            }
+            return SeModifico;
+        }
+
+        public bool SetDeudor(string strCon, bool esDeudor)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ID", this.ID));
+            lstParametros.Add(new SqlParameter("@EsDeudor", esDeudor));
+            string sql = "UPDATE Estudiante SET Deudor = @EsDeudor WHERE ID = @ID;";
+            try
+            {
+                con.Open();
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
             }
             return SeModifico;
         }

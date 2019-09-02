@@ -68,29 +68,59 @@ namespace APIBritanico.Controllers
         }
 
 
-        //// GET: api/mensualidad/getallbyestudiantegrupo/1,1
-        [HttpGet("{estudianteID:int},{anio:int}")]
+        //// GET: api/mensualidad/getallbyestudiantegrupo/1
+        [HttpGet("{estudianteID:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<List<Mensualidad>> GetAllByEstudiante(int estudianteID, int anio)
+        public ActionResult<List<Mensualidad>> GetAllByEstudiante(int estudianteID)
         {
             try
             {
-                if (estudianteID < 1 || anio < 2000)
+                if (estudianteID < 1)
                 {
-                    return BadRequest("Datos invalidos en el request");
+                    return BadRequest("Debe enviar un estudiante");
                 }
-                Mensualidad mensualidad = new Mensualidad
-                {
-                    ID = 0,
-                    AnioAsociado = anio
-                };
                 Estudiante estudiante = new Estudiante
                 {
                     ID = estudianteID
                 };
-                mensualidad.Estudiante = estudiante;
+                Mensualidad mensualidad = new Mensualidad
+                {
+                    ID = 0,
+                    Estudiante = estudiante
+                };
                 List<Mensualidad> lstMensualidades = Fachada.ObtenerMensualidadesByEstudiante(mensualidad);
+                return lstMensualidades;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/mensualidad/GetAllImpagasByEstudiante/1
+        [HttpGet("{estudianteID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Mensualidad>> GetAllImpagasByEstudiante(int estudianteID)
+        {
+            try
+            {
+                if (estudianteID < 1)
+                {
+                    return BadRequest("Debe enviar un estudiante");
+                }
+                Estudiante estudiante = new Estudiante
+                {
+                    ID = estudianteID
+                };
+                Mensualidad mensualidad = new Mensualidad
+                {
+                    ID = 0,
+                    Estudiante = estudiante
+                };
+                List<Mensualidad> lstMensualidades = Fachada.ObtenerMensualidadesImpagasByEstudiante(mensualidad);
                 return lstMensualidades;
             }
             catch (Exception ex)
@@ -237,6 +267,39 @@ namespace APIBritanico.Controllers
                 if (Fachada.PagarMensualidad(lstMensualidades))
                 {
                     return true;
+                }
+                else
+                {
+                    return BadRequest(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// PUT api/mensualidad/Pagar/
+        [HttpPut("{convenioID:int},{funcionarioID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> PagarByConvenio(int convenioID, int funcionarioID)
+        {
+            try
+            {
+                if (convenioID < 1 || funcionarioID < 1)
+                {
+                    return BadRequest("Debe enviar el convenio y el funcionario");
+                }
+                Convenio convenio = new Convenio
+                {
+                    ID = convenioID
+                };
+
+                if (Fachada.PagarMensualidadByConvenio(convenio, funcionarioID))
+                {
+                    return Ok(true);
                 }
                 else
                 {

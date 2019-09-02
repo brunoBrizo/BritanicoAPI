@@ -21,7 +21,7 @@ namespace BibliotecaBritanico.Modelo
         public decimal NotaFinalOralMax { get; set; }
         public decimal NotaFinalWrittingMax { get; set; }
         public decimal NotaFinalListeningMax { get; set; }
-        //public List<Libro> LstLibros { get; set; } = new List<Libro>(); //el libro tiene su materia
+        public decimal ExamenPrecio { get; set; } //se utiliza para dar de alta el historial, para matricular estudiantes por convenio
 
 
         public Materia()
@@ -217,6 +217,7 @@ namespace BibliotecaBritanico.Modelo
         public bool Guardar(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
+            SqlTransaction tran = null;
             bool seGuardo = false;
             try
             {
@@ -224,11 +225,27 @@ namespace BibliotecaBritanico.Modelo
                 this.ID = (int)Herramientas.ObtenerNumerador("MATER", strCon);
                 if (this.ID > 0)
                 {
+                    con.Open();
+                    tran = con.BeginTransaction();
                     List<SqlParameter> lstParametros = this.ObtenerParametros();
                     string sql = "INSERT INTO Materia VALUES (@ID, @SucursalID, @Nombre, @Precio, @NotaFinalOralMax, @NotaFinalWrittingMax, @NotaFinalListeningMax);";
                     int ret = 0;
-                    ret = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null));
-                    if (ret > 0) seGuardo = true;
+                    ret = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran));
+                    if (ret > 0)
+                    {
+                        MateriaHistorial materiaHistorial = new MateriaHistorial
+                        {
+                            ID = 0,
+                            MateriaID = this.ID,
+                            ExamenPrecio = this.ExamenPrecio,
+                            Anio = DateTime.Now.Year,
+                            SucursalID = this.SucursalID
+                        };
+                        if (!MateriaHistorial.ExisteMateriaHistorial(materiaHistorial, con))
+                            materiaHistorial.GuardarTransaccional(con, tran);
+                        seGuardo = true;
+                    }
+                    tran.Commit();
                 }
             }
             catch (SqlException ex)

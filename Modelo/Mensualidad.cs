@@ -153,7 +153,7 @@ namespace BibliotecaBritanico.Modelo
             string sql = "";
             if (mensualidad.Estudiante.ID > 0 && mensualidad.MesAsociado > 0 && mensualidad.AnioAsociado > 0 && mensualidad.Grupo.ID > 0)
             {
-                sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND MesAsociado = @MesAsociado AND AnioAsociado = @AnioAsociado AND GrupoID = @GrupoID";
+                sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND MesAsociado = @MesAsociado AND AnioAsociado = @AnioAsociado AND GrupoID = @GrupoID AND Anulado = 0";
                 lstParametros.Add(new SqlParameter("@EstudianteID", mensualidad.Estudiante.ID));
                 lstParametros.Add(new SqlParameter("@MesAsociado", mensualidad.MesAsociado));
                 lstParametros.Add(new SqlParameter("@AnioAsociado", mensualidad.AnioAsociado));
@@ -452,10 +452,59 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             List<Mensualidad> lstMensualidades = new List<Mensualidad>();
-            string sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND AnioAsociado = @AnioAsociado;";
+            string sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID;";
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
-            lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
+            SqlDataReader reader = null;
+            try
+            {
+                this.Estudiante.Leer(strCon);
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Mensualidad mensualidad = new Mensualidad();
+                    mensualidad.ID = Convert.ToInt32(reader["ID"]);
+                    mensualidad.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
+                    mensualidad.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                    mensualidad.Estudiante = this.Estudiante;
+                    mensualidad.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    mensualidad.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                    mensualidad.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
+                    mensualidad.MesAsociado = Convert.ToInt32(reader["MesAsociado"]);
+                    mensualidad.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
+                    mensualidad.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    mensualidad.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                    mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
+                    mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
+                    mensualidad.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                    lstMensualidades.Add(mensualidad);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstMensualidades;
+        }
+
+        public List<Mensualidad> GetAllImpagasByEstudiante(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Mensualidad> lstMensualidades = new List<Mensualidad>();
+            string sql = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0;";
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
             SqlDataReader reader = null;
             try
             {
@@ -638,6 +687,91 @@ namespace BibliotecaBritanico.Modelo
             return SeModifico;
         }
 
+        public static bool PagarMensualidadByConvenio(Convenio convenio, int funcionarioID, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            SqlDataReader reader = null;
+            List<Mensualidad> lstMensualidades = new List<Mensualidad>();            
+            string sql = "";            
+            bool ok = false;
+            try
+            {
+                List<Estudiante> lstEstudiantes = Estudiante.LeerByConvenio(convenio, strCon);
+                if (lstEstudiantes.Count > 0)
+                {
+                    con.Open();
+                    foreach (Estudiante estudiante in lstEstudiantes)
+                    {
+                        List<SqlParameter> lstParametros = new List<SqlParameter>();
+                        lstParametros.Add(new SqlParameter("ConvenioID", convenio.ID));
+                        lstParametros.Add(new SqlParameter("EstudianteID", estudiante.ID));
+                        if (estudiante.GrupoID > 0)
+                        {
+                            lstParametros.Add(new SqlParameter("GrupoID", estudiante.GrupoID));
+                            sql = "SELECT * FROM Mensualidad WHERE MesAsociado = (SELECT MIN(MesAsociado) FROM Mensualidad WHERE EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0  AND GrupoID = @GrupoID) AND EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0 AND GrupoID = @GrupoID";
+
+                        }
+                        else
+                        {
+                            sql = "SELECT * FROM Mensualidad WHERE MesAsociado = (SELECT MIN(MesAsociado) FROM Mensualidad WHERE EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0) AND EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0";
+                        }
+                        reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                        while (reader.Read())
+                        {
+                            Mensualidad mensualidad = new Mensualidad();
+                            mensualidad.ID = Convert.ToInt32(reader["ID"]);
+                            mensualidad.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
+                            mensualidad.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                            mensualidad.Estudiante.ID = Convert.ToInt32(reader["EstudianteID"]);
+                            mensualidad.Estudiante.LeerLazy(strCon);
+                            mensualidad.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                            mensualidad.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                            mensualidad.Grupo.Materia.ID = Convert.ToInt32(reader["MateriaID"]);
+                            mensualidad.MateriaID = Convert.ToInt32(reader["MateriaID"]);
+                            mensualidad.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
+                            mensualidad.MesAsociado = Convert.ToInt32(reader["MesAsociado"]);
+                            mensualidad.AnioAsociado = Convert.ToInt32(reader["AnioAsociado"]);
+                            mensualidad.Funcionario.ID = funcionarioID;
+                            mensualidad.FuncionarioID = funcionarioID;
+                            mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                            mensualidad.Paga = Convert.ToBoolean(reader["Paga"]);
+                            mensualidad.FechaVencimiento = Convert.ToDateTime(reader["FechaVencimiento"]);
+                            mensualidad.Anulado = Convert.ToBoolean(reader["Anulado"]);
+                            lstMensualidades.Add(mensualidad);
+                            break;
+                        }
+                        reader.Close();
+                    }
+                    if (lstMensualidades.Count > 0)
+                    {
+                        Mensualidad.PagarMensualidad(lstMensualidades, strCon);
+                        ok = true;
+                    }
+                    else
+                    {
+                        throw new ValidacionException("No existen mensualidades para pagar");
+                    }
+                }
+                else
+                {
+                    throw new ValidacionException("No hay estudiantes asociados al convenio");
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return ok;
+        }
+        
         public static bool AnularMensualidad(List<Mensualidad> lstMensualidades, SqlConnection con, SqlTransaction tran = null)
         {
             bool SeModifico = false;

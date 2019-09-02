@@ -46,11 +46,14 @@
   <ItemGroup>
     <Compile Include="Fachada\Fachada_001.cs" />
     <Compile Include="Modelo\DatosEscolaridad.cs" />
+    <Compile Include="Modelo\EmailPorGrupo.cs" />
     <Compile Include="Modelo\Empresa.cs" />
     <Compile Include="Modelo\Estudiante.cs" />
     <Compile Include="Modelo\Convenio.cs" />
     <Compile Include="Modelo\ExamenEstudianteCuota.cs" />
+    <Compile Include="Modelo\FiltrosPago.cs" />
     <Compile Include="Modelo\GrupoDia.cs" />
+    <Compile Include="Modelo\MateriaHistorial.cs" />
     <Compile Include="Modelo\Matricula.cs" />
     <Compile Include="Modelo\Pago.cs" />
     <Compile Include="Modelo\Grupo.cs" />

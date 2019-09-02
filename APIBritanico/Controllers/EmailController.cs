@@ -123,33 +123,27 @@ namespace APIBritanico.Controllers
 
 
         //// POST api/email/EnviarMailPorGrupo/
-        [HttpPost("{grupoID:int},{asunto},{mensaje}")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<bool>> EnviarMailPorGrupo(int grupoID, string asunto, string mensaje)
+        public async Task<ActionResult<bool>> EnviarMailPorGrupo([FromBody]EmailPorGrupo data)
         {
             try
             {
-                if (grupoID < 1)
+                EmailPorGrupo emailPorGrupo = (EmailPorGrupo)data;
+                if (emailPorGrupo == null)
+                {
+                    return BadRequest("Datos invalidos en el request");
+                }
+                if (emailPorGrupo.Grupo.ID < 1)
                 {
                     return BadRequest("Debe enviar un grupo");
                 }
-                if (asunto.Equals(String.Empty) || mensaje.Equals(String.Empty))
+                if (emailPorGrupo.Email.Asunto.Equals(String.Empty) || emailPorGrupo.Email.CuerpoHTML.Equals(String.Empty))
                 {
                     return BadRequest("Debe ingresar asunto y un mensaje");
                 }
-                Email email = new Email
-                {
-                    ID = 0,
-                    Asunto = asunto,
-                    CuerpoHTML = mensaje,
-                    FechaHora = DateTime.Now
-                };
-                Grupo grupo = new Grupo
-                {
-                    ID = grupoID
-                };
-                bool ret = await Fachada.EnviarMailPorGrupo(email, grupo);
+                bool ret = await Fachada.EnviarMailPorGrupo(emailPorGrupo.Email, emailPorGrupo.Grupo);
                 if (!ret)
                 {
                     return BadRequest(ret);

@@ -68,6 +68,36 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// POST: api/pago/getall/
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<Pago>> GetAll([FromBody]FiltrosPago data)
+        {
+            try
+            {
+                FiltrosPago filtros = (FiltrosPago)data;
+                if (filtros == null)
+                {
+                    return BadRequest("Datos invalidos en el request");
+                }
+                if (filtros.FechaDesde > DateTime.MinValue && filtros.FechaHasta > DateTime.MinValue)
+                {
+                    List<Pago> lstPagos = Fachada.ObtenerPagos(filtros.FechaDesde, filtros.FechaHasta, filtros.Concepto);
+                    return lstPagos;
+                }
+                else
+                {
+                    return BadRequest("Fechas inválidas");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// POST api/pago/crear/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -220,12 +220,12 @@ namespace BibliotecaBritanico.Modelo
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             SqlDataReader reader = null;
             string sql = "";
-            if (this.ID > 0 && this.Examen.ID > 0 && this.Examen.Grupo.ID > 0 && this.Estudiante.ID > 0)
+            if (this.ID > 0 && this.Examen.ID > 0 && this.Examen.GrupoID > 0 && this.Estudiante.ID > 0)
             {
                 sql = "SELECT * FROM ExamenEstudiante WHERE ID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID";
                 lstParametros.Add(new SqlParameter("@ID", this.ID));
                 lstParametros.Add(new SqlParameter("@ExamenID", this.Examen.ID));
-                lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.Grupo.ID));
+                lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
                 lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
             }
             else
@@ -784,6 +784,48 @@ namespace BibliotecaBritanico.Modelo
             return lstExamenes;
         }
 
+        public static List<ExamenEstudiante> GetActualesByEstudiante(Estudiante estudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<ExamenEstudiante> lstExamenes = new List<ExamenEstudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
+            lstParametros.Add(new SqlParameter("@FechaHora", DateTime.Now));
+            string sql = "SELECT EE.ID, EE.ExamenID, EE.GrupoID FROM Examen E, ExamenEstudiante EE WHERE E.ID = EE.ExamenID AND E.GrupoID = EE.GrupoID AND EE.EstudianteID = @EstudianteID AND E.FechaHora >= @FechaHora";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    ExamenEstudiante examenEstudiante = new ExamenEstudiante();
+                    examenEstudiante.ID = Convert.ToInt32(reader["ID"]);
+                    examenEstudiante.Examen.ID = Convert.ToInt32(reader["ExamenID"]);
+                    examenEstudiante.Examen.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    examenEstudiante.Examen.Leer(strCon);
+                    examenEstudiante.Estudiante = estudiante;
+                    examenEstudiante.Leer(strCon);
+                    lstExamenes.Add(examenEstudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstExamenes;
+        }
+
         public static List<ExamenEstudiante> GetByExamen(Examen examen, string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
@@ -912,6 +954,7 @@ namespace BibliotecaBritanico.Modelo
         public bool PagarCuota(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
+            SqlTransaction tran = null;
             bool SeModifico = false;
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@ID", this.ID));
@@ -924,19 +967,25 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 con.Open();
+                tran = con.BeginTransaction();
                 int res = 0;
-                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
                 if (res > 0)
                 {
                     SeModifico = true;
                 }
+                tran.Commit();
             }
             catch (SqlException ex)
             {
+                tran.Rollback();
+                tran.Dispose();
                 throw ex;
             }
             catch (Exception ex)
             {
+                tran.Rollback();
+                tran.Dispose();
                 throw ex;
             }
             finally

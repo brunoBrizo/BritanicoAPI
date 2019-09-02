@@ -50,6 +50,35 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/convenio/getmontoapagar/1
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<decimal> GetMontoAPagar(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    Convenio convenio = new Convenio
+                    {
+                        ID = id
+                    };
+                    decimal monto = Fachada.GetMontoAPagarPorConvenio(convenio);
+                    return Ok(monto);
+                }
+                else
+                {
+                    return BadRequest("ID no puede ser vacio");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/convenio/getall/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

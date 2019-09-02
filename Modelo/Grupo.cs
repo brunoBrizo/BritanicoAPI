@@ -266,7 +266,7 @@ namespace BibliotecaBritanico.Modelo
             }
             return ok;
         }
-        
+
         public bool Leer(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
@@ -384,6 +384,15 @@ namespace BibliotecaBritanico.Modelo
                         sqlDias = "INSERT INTO GrupoDias VALUES (@ID, @GrupoDiaID, @Dia);";
                         Persistencia.EjecutarNoQuery(con, sqlDias, lstParametrosDia, CommandType.Text, tran);
                     }
+                    MateriaHistorial materiaHistorial = new MateriaHistorial
+                    {
+                        ID = 0,
+                        MateriaID = this.MateriaID,
+                        SucursalID = this.SucursalID,
+                        MensualidadPrecio = this.Precio,
+                        Anio = this.Anio
+                    };
+                    materiaHistorial.GuardarTransaccional(con, tran);
                     tran.Commit();
                     seGuardo = true;
                 }
@@ -422,6 +431,10 @@ namespace BibliotecaBritanico.Modelo
                 res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
                 if (res > 0)
                 {
+                    string sqlEliminarDias = "DELETE FROM GrupoDias WHERE GrupoID = @ID";
+                    List<SqlParameter> lstParamEliminarDias = new List<SqlParameter>();
+                    lstParamEliminarDias.Add(new SqlParameter("@ID", this.ID));
+                    Persistencia.EjecutarNoQuery(con, sqlEliminarDias, lstParamEliminarDias, CommandType.Text, tran);
                     foreach (GrupoDia grpDia in this.LstDias)
                     {
                         List<SqlParameter> lstParametrosDia = new List<SqlParameter>();
@@ -429,15 +442,7 @@ namespace BibliotecaBritanico.Modelo
                         lstParametrosDia.Add(new SqlParameter("@ID", this.ID));
                         lstParametrosDia.Add(new SqlParameter("@GrupoDiaID", grpDia.ID));
                         string sqlDias = "";
-                        if (this.ExisteGrupoDia(grpDia, strCon))
-                        {
-                            sqlDias = "UPDATE GrupoDias SET Dia = @Dia WHERE GrupoID = @ID AND ID = @GrupoDiaID;";
-
-                        }
-                        else
-                        {
-                            sqlDias = "INSERT INTO GrupoDias VALUES (@ID, @GrupoDiaID, @Dia);";
-                        }
+                        sqlDias = "INSERT INTO GrupoDias VALUES (@ID, @GrupoDiaID, @Dia);";
                         Persistencia.EjecutarNoQuery(con, sqlDias, lstParametrosDia, CommandType.Text, tran);
                     }
                     tran.Commit();

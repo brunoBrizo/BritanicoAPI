@@ -100,6 +100,23 @@ CREATE INDEX IDX_Materia_Nombre ON Materia (Nombre);
 GO
 
 
+CREATE TABLE MateriaHistorial (
+ID NUMERIC (10) IDENTITY (1, 1),
+MateriaID NUMERIC (10) NOT NULL,
+SucursalID NUMERIC (10) NOT NULL,
+Anio NUMERIC (5) NOT NULL,
+ExamenPrecio NUMERIC (10, 2),
+MensualidadPrecio NUMERIC (10, 2),
+CantidadGrupos NUMERIC (5),
+CantidadAlumnos NUMERIC (5),
+
+CONSTRAINT PK_MateriaHistorial PRIMARY KEY (ID),
+CONSTRAINT FK_MateriaHistorial_MateriaID FOREIGN KEY (MateriaID) REFERENCES Materia (ID),
+CONSTRAINT FK_MateriaHistorial_SucursalID FOREIGN KEY (SucursalID) REFERENCES Sucursal (ID)
+);
+GO
+
+
 CREATE TABLE Libro (
 ID NUMERIC (10) NOT NULL,
 MateriaID NUMERIC (10) NOT NULL,
@@ -340,10 +357,10 @@ Precio NUMERIC (10, 2),
 FuncionarioID NUMERIC (10),
 Anulado BIT NOT NULL
 FaltasEnClase NUMERIC (3),
-NotaFinalOral NUMERIC (3),
-NotaFinalWritting NUMERIC (3),
-NotaFinalListening NUMERIC (3),
-InternalAssessment NUMERIC (3)
+NotaFinalOral NUMERIC (5, 2),
+NotaFinalWritting NUMERIC (5, 2),
+NotaFinalListening NUMERIC (5, 2),
+InternalAssessment NUMERIC (5, 2)
 
 
 CONSTRAINT PK_ExamenEstudiante PRIMARY KEY (ID, ExamenID, GrupoID, EstudianteID),

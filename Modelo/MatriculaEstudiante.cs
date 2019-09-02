@@ -68,12 +68,19 @@ namespace BibliotecaBritanico.Modelo
                 {
                     if (matriculaEstudiante.Estudiante.GrupoID > 0)
                     {
-                        errorMsg = "El estudiante ya esta inscripto a otro grupo \n";
+                        errorMsg = "El estudiante ya esta inscripto a un grupo \n";
                     }
                 }
                 if (!errorMsg.Equals(String.Empty))
                 {
                     throw new ValidacionException(errorMsg);
+                }
+                Estudiante estudianteAux = matriculaEstudiante.Estudiante;
+                estudianteAux.GrupoID = matriculaEstudiante.GrupoID;
+                estudianteAux.MateriaID = matriculaEstudiante.MateriaID;
+                if (estudianteAux.ValidarDebeMensualidadEnMatricula(strCon))
+                {
+                    throw new ValidacionException("El estudiante tiene mensualidades anteriores IMPAGAS");
                 }
                 return true;
             }

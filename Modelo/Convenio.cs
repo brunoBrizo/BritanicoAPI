@@ -324,7 +324,7 @@ namespace BibliotecaBritanico.Modelo
             }
             return lstConvenio;
         }
-        
+
         public override List<SqlParameter> ObtenerParametros()
         {
             List<SqlParameter> lstParametros = new List<SqlParameter>();
@@ -350,6 +350,60 @@ namespace BibliotecaBritanico.Modelo
         {
             return this.GetAll(strCon);
         }
+
+        public decimal GetMontoAPagar(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            decimal monto = 0;
+            bool existeMensualidad = false;
+            SqlDataReader reader = null;
+            try
+            {
+                List<Estudiante> lstEstudiantes = Estudiante.LeerByConvenio(this, strCon);
+                if (lstEstudiantes.Count > 0)
+                {
+                    con.Open();
+                    foreach (Estudiante estudiante in lstEstudiantes)
+                    {
+                        List<SqlParameter> lstParametros = new List<SqlParameter>();
+                        lstParametros.Add(new SqlParameter("@EstudianteID", estudiante.ID));
+                        string sqlMensualidad = "SELECT * FROM Mensualidad WHERE EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0 AND MesAsociado = (SELECT MIN(MesAsociado) FROM Mensualidad WHERE EstudianteID = @EstudianteID AND Paga = 0 AND Anulado = 0)";
+                        reader = Persistencia.EjecutarConsulta(con, sqlMensualidad, lstParametros, CommandType.Text);
+                        while (reader.Read())
+                        {
+                            Mensualidad mensualidad = new Mensualidad();
+                            mensualidad.ID = Convert.ToInt32(reader["ID"]);
+                            mensualidad.Precio = Convert.ToDecimal(reader["Precio"]);
+                            monto += mensualidad.Precio;
+                            existeMensualidad = true;
+                        }
+                        reader.Close();
+                    }
+                    if (!existeMensualidad)
+                    {
+                        throw new ValidacionException("No existen mensualidades pendientes");
+                    }
+                    return monto;
+                }
+                else
+                {
+                    throw new ValidacionException("No hay estudiantes asociados al convenio");
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
 
         #endregion
 

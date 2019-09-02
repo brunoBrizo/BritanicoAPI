@@ -132,7 +132,36 @@ namespace APIBritanico.Controllers
                         ID = id
                     };
                     ExamenEstudiante examenEstudiante = Fachada.ObtenerExamenEstudianteCuotas(estudiante);
-                    if (estudiante == null)
+                    return Ok(examenEstudiante);
+                }
+                else
+                {
+                    return BadRequest("Id de estudiante no puede ser vacío");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/GetExamenEstudiantePorRendir/1
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<ExamenEstudiante> GetExamenEstudiantePorRendir(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = id
+                    };
+                    ExamenEstudiante examenEstudiante = Fachada.GetExamenEstudiantePorRendir(estudiante);
+                    if (examenEstudiante == null)
                     {
                         return BadRequest("El estudiante no esta anotado a ningun examen");
                     }
@@ -435,6 +464,21 @@ namespace APIBritanico.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        //// POST api/estudiante/ActualizarEstudiantesDeudores/
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public void ActualizarEstudiantesDeudores()
+        {
+            Estudiante estudiante = new Estudiante
+            {
+                ID = 350
+            };
+            Fachada.MarcarEstudianteComoDeudor(estudiante);
+        }
+
 
 
         //// POST api/estudiante/DarDeBaja/1,8

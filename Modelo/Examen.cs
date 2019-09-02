@@ -297,7 +297,10 @@ namespace BibliotecaBritanico.Modelo
                     string sql = "INSERT INTO Examen VALUES (@ID, @GrupoID, @MateriaID, @FechaHora, @AnioAsociado, @NotaMinima, @Precio, @Calificado);";
                     int ret = 0;
                     ret = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null));
-                    if (ret > 0) seGuardo = true;
+                    if (ret > 0)
+                    {
+                        seGuardo = true;
+                    }
                 }
             }
             catch (SqlException ex)
@@ -610,18 +613,12 @@ namespace BibliotecaBritanico.Modelo
                 }
                 else
                 {
-                    if (estudiante.Leer(strCon))
-                    {
-                        lstParametros.Add(new SqlParameter("@MateriaID", estudiante.MateriaID));
-                        lstParametros.Add(new SqlParameter("@GrupoID", estudiante.GrupoID));
-                    }
-                    else
-                    {
-                        throw new Exception("No existe el estudiante");
-                    }
+                    lstParametros.Add(new SqlParameter("@MateriaID", estudiante.MateriaID));
+                    lstParametros.Add(new SqlParameter("@GrupoID", estudiante.GrupoID));
                 }
-                lstParametros.Add(new SqlParameter("@AnioAsociado", DateTime.Now.Year));                
-                string sqlExamenID = "SELECT E.ID, E.GrupoID FROM EXAMEN E, MATERIA M WHERE E.MATERIAID = M.ID AND E.ANIOASOCIADO = @AnioAsociado AND M.ID = @MateriaID;";
+                lstParametros.Add(new SqlParameter("@AnioAsociado", DateTime.Now.Year));
+                lstParametros.Add(new SqlParameter("@FechaHora", DateTime.Now));
+                string sqlExamenID = "SELECT E.ID, E.GrupoID FROM EXAMEN E, MATERIA M WHERE E.MATERIAID = M.ID AND E.ANIOASOCIADO = @AnioAsociado AND E.FechaHora >= @FechaHora AND M.ID = @MateriaID;";
 
                 con.Open();
                 reader = Persistencia.EjecutarConsulta(con, sqlExamenID, lstParametros, CommandType.Text);
@@ -634,7 +631,7 @@ namespace BibliotecaBritanico.Modelo
                     examen.Leer(strCon);
                     lstExamenes.Add(examen);
                 }
-                if (lstExamenes.Count > 1)
+                if (lstExamenes.Count > 0)
                 {
                     Examen examen = null;
                     bool encuentroExamen = false;

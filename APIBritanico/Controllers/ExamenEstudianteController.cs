@@ -99,6 +99,39 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/examenEstudiante/GetActualByEstudiante/1
+        [HttpGet("{estudianteID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<ExamenEstudiante>> GetActualByEstudiante(int estudianteID)
+        {
+            try
+            {
+                if (estudianteID > 0)
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = estudianteID
+                    };
+                    List<ExamenEstudiante> lstExamenEstudiante = Fachada.GetExamenesActualesByEstudiante(estudiante);
+                    if (lstExamenEstudiante == null || lstExamenEstudiante.Count < 1)
+                    {
+                        return BadRequest("No existen examenes sin pagar");
+                    }
+                    return lstExamenEstudiante;
+                }
+                else
+                {
+                    return BadRequest("ID de estudiante no puede ser vacío");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/examenEstudiante/getall/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -261,10 +294,10 @@ namespace APIBritanico.Controllers
 
 
         //// PUT api/examenEstudiante/ModificarByLista/
-        [HttpPut("{id:int},{examenID:int},{grupoID:int},{idCuota:int}")]
+        [HttpPut("{id:int},{examenID:int},{grupoID:int},{idCuota:int},{precio:int},{estudianteID:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<bool> PagarCuota(int id, int examenID, int grupoID, int idCuota, decimal precio)
+        public ActionResult<bool> PagarCuota(int id, int examenID, int grupoID, int idCuota, decimal precio, int estudianteID)
         {
             try
             {
@@ -287,6 +320,11 @@ namespace APIBritanico.Controllers
                     ID = idCuota,
                     Precio = precio
                 });
+                Estudiante estudiante = new Estudiante()
+                {
+                    ID = estudianteID
+                };
+                examenEstudiante.Estudiante = estudiante;
 
                 if (Fachada.PagarCuotaExamenEstudiante(examenEstudiante))
                 {

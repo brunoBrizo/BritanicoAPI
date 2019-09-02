@@ -428,6 +428,30 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public decimal GetMontoAPagarPorConvenio(Convenio convenio)
+        {
+            try
+            {
+                if (convenio.Leer(Fachada_001.Conexion))
+                    return convenio.GetMontoAPagar(Fachada_001.Conexion);
+                throw new ValidacionException("No existe el convenio");
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Convenio", "Error en GetMontoAPagarPorConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo monto a pagar por convenio | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Convenio", "Error en GetMontoAPagarPorConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo monto a pagar por convenio | Error: " + ex.Message);
+            }
+        }
+
         #endregion
 
 
@@ -676,6 +700,30 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public List<Pago> ObtenerPagos(DateTime desde, DateTime hasta, int concepto)
+        {
+            try
+            {
+                Pago pago = new Pago();
+                List<Pago> lstPagos = pago.GetAll(desde, hasta, concepto, Fachada_001.Conexion);
+                return lstPagos;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Pago", "Error en ObtenerPagos | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo pagos | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Pago", "Error en ObtenerPagos | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo pagos | Error: " + ex.Message);
+            }
+        }
+
         public Pago GetPago(Pago pago)
         {
             try
@@ -839,6 +887,74 @@ namespace BibliotecaBritanico.Fachada
             {
                 Herramientas.CrearLogError("Materia", "Error en GetMateria | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw new Exception("Error obteniendo materia | Error: " + ex.Message);
+            }
+        }
+
+        public List<MateriaHistorial> ObtenerMateriaHistorialByMateria(Materia materia)
+        {
+            try
+            {
+                return MateriaHistorial.GetAllByMateria(materia, Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Materia", "Error en ObtenerMateriaHistorialByMateria | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo historial de materia | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Materia", "Error en ObtenerMateriaHistorialByMateria | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mathistorial de materia | Error: " + ex.Message);
+            }
+        }
+
+        public List<MateriaHistorial> ObtenerMateriaHistorialByMateriaAnio(Materia materia, int anio)
+        {
+            try
+            {
+                return MateriaHistorial.GetAllByMateriaAnio(materia, anio, Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Materia", "Error en ObtenerMateriaHistorialByMateriaAnio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo historial de materia por año | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Materia", "Error en ObtenerMateriaHistorialByMateriaAnio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mathistorial de materia por año | Error: " + ex.Message);
+            }
+        }
+
+        public bool ModificarMateriaHistorialExamenPrecio(MateriaHistorial materiaHistorial)
+        {
+            try
+            {
+                if (MateriaHistorial.ExisteMateriaHistorial(materiaHistorial, Fachada_001.Conexion))
+                    materiaHistorial.ModificarExamenPrecio(Fachada_001.Conexion);
+                return true;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Materia", "Error en ModificarMateriaHistorialExamenPrecio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error modificando precio de examen de la materia | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Materia", "Error en ModificarMateriaHistorialExamenPrecio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error modificando precio de examen de la materia | Error: " + ex.Message);
             }
         }
 
@@ -1555,7 +1671,16 @@ namespace BibliotecaBritanico.Fachada
         {
             try
             {
-                return Examen.GetExamenPendientePorEstudiante(estudiante, Fachada_001.Conexion);
+                if (estudiante.Leer(Fachada_001.Conexion))
+                {
+                    if (estudiante.DebeExamen(Fachada_001.Conexion))
+                    {
+                        throw new ValidacionException("El estudiante tiene exámenes anteriores IMPAGOS");
+                    }
+                    return Examen.GetExamenPendientePorEstudiante(estudiante, Fachada_001.Conexion);
+                }
+                else
+                    throw new ValidacionException("No existe el estudiante");
             }
             catch (ValidacionException ex)
             {
@@ -1570,6 +1695,33 @@ namespace BibliotecaBritanico.Fachada
             {
                 Herramientas.CrearLogError("Estudiante", "Error en GetExamenPendienteByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw new Exception("Error obteniendo examen pendiente de un estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public ExamenEstudiante GetExamenEstudiantePorRendir(Estudiante estudiante)
+        {
+            try
+            {
+                if (estudiante.Leer(Fachada_001.Conexion))
+                {
+                    return Estudiante.GetExamenEstudiantePorRendir(estudiante, Fachada_001.Conexion);
+                }
+                else
+                    throw new ValidacionException("No existe el estudiante");
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en GetExamenEstudiantePorRendir | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examen por rendir de un estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en GetExamenEstudiantePorRendir | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examen por rendir de un estudiante | Error: " + ex.Message);
             }
         }
 
@@ -1669,10 +1821,6 @@ namespace BibliotecaBritanico.Fachada
             try
             {
                 estudiante.Leer(Fachada_001.Conexion);
-                if (estudiante.GrupoID < 1)
-                {
-                    throw new ValidacionException("El estudiante no esta asociado a ningun grupo");
-                }
                 ExamenEstudiante examenEstudiante = Estudiante.GetExamenEstudianteCuotas(estudiante, Fachada_001.Conexion);
                 return examenEstudiante;
             }
@@ -1740,6 +1888,28 @@ namespace BibliotecaBritanico.Fachada
             catch (Exception ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public void MarcarEstudianteComoDeudor(Estudiante estudiante)
+        {
+            try
+            {
+                estudiante.SetDeudor(Fachada_001.Conexion, true);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                //throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                //Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
             }
         }
@@ -2933,6 +3103,7 @@ namespace BibliotecaBritanico.Fachada
                 {
                     Mensualidad mensualidad = new Mensualidad();
                     List<Mensualidad> lstMensualidades = mensualidad.GetAllLazy(Fachada_001.Conexion);
+                    Mensualidad.CalcularRecargo(lstMensualidades, Fachada_001.Conexion);
                     return lstMensualidades;
                 }
                 catch (ValidacionException ex)
@@ -2973,6 +3144,30 @@ namespace BibliotecaBritanico.Fachada
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw new Exception("Error obteniendo mensualidades por estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public List<Mensualidad> ObtenerMensualidadesImpagasByEstudiante(Mensualidad mensualidad)
+        {
+            try
+            {
+                List<Mensualidad> lstMensualidades = mensualidad.GetAllImpagasByEstudiante(Fachada_001.Conexion);
+                Mensualidad.CalcularRecargo(lstMensualidades, Fachada_001.Conexion);
+                return lstMensualidades;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesImpagasByEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mensualidades impagas por estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Mensualidad", "Error en ObtenerMensualidadesImpagasByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo mensualidades impagas por estudiante | Error: " + ex.Message);
             }
         }
 
@@ -3021,6 +3216,30 @@ namespace BibliotecaBritanico.Fachada
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en PagarMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw new Exception("Error pagando mensualidad | Error: " + ex.Message);
+            }
+        }
+
+        public bool PagarMensualidadByConvenio(Convenio convenio, int funcionarioID)
+        {
+            try
+            {
+                if (Mensualidad.PagarMensualidadByConvenio(convenio, funcionarioID, Fachada_001.Conexion))
+                    return true;
+                return false;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Mensualidad", "Error en PagarMensualidadByConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error pagando mensualidades del convenio | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Mensualidad", "Error en PagarMensualidadByConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error pagando mensualidades del convenio | Error: " + ex.Message);
             }
         }
 
@@ -3087,9 +3306,12 @@ namespace BibliotecaBritanico.Fachada
         {
             try
             {
-                if (examenEstudiante.PagarCuota(Fachada_001.Conexion))
+                if (examenEstudiante.Leer(Fachada_001.Conexion))
                 {
-                    return true;
+                    if (examenEstudiante.PagarCuota(Fachada_001.Conexion))
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -3236,6 +3458,28 @@ namespace BibliotecaBritanico.Fachada
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenesNoPagosByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
                 throw new Exception("Error obteniendo examenes sin pagar por estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public List<ExamenEstudiante> GetExamenesActualesByEstudiante(Estudiante estudiante)
+        {
+            try
+            {
+                return ExamenEstudiante.GetActualesByEstudiante(estudiante, Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenesActualesByEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examenes por estudiante | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("ExamenEstudiante", "Error en GetExamenesActualesByEstudiante | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examenes por estudiante | Error: " + ex.Message);
             }
         }
 

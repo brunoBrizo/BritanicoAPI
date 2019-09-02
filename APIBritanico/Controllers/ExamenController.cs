@@ -192,6 +192,14 @@ namespace APIBritanico.Controllers
                 }
                 else
                 {
+                    MateriaHistorial materiaHistorial = new MateriaHistorial
+                    {
+                        ID = 0,
+                        MateriaID = examen.MateriaID,
+                        Anio = examen.AnioAsociado,
+                        ExamenPrecio = examen.Precio
+                    };
+                    Fachada.ModificarMateriaHistorialExamenPrecio(materiaHistorial);
                     return examen;
                 }
             }

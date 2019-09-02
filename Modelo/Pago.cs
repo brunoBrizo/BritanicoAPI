@@ -282,6 +282,56 @@ namespace BibliotecaBritanico.Modelo
             return lstPagos;
         }
 
+        public List<Pago> GetAll(DateTime desde, DateTime hasta, int concepto, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Pago> lstPagos = new List<Pago>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@Desde", desde));
+            lstParametros.Add(new SqlParameter("@Hasta", hasta));
+            string sql = "";
+            sql = "SELECT * FROM Pago WHERE FechaHora BETWEEN @Desde AND @Hasta";
+            if (concepto > 0)
+            {
+                sql += " AND Concepto = @Concepto";
+                lstParametros.Add(new SqlParameter("@Concepto", concepto));
+            }
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Pago pago = new Pago();
+                    pago.ID = Convert.ToInt32(reader["ID"]);
+                    pago.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
+                    pago.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                    pago.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
+                    pago.Concepto = (TipoPago)Convert.ToInt32(reader["Concepto"]);
+                    pago.Monto = Convert.ToDecimal(reader["Monto"]);
+                    pago.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    pago.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    pago.Observacion = reader["Observacion"].ToString().Trim();
+                    lstPagos.Add(pago);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstPagos;
+        }
+
         public override List<SqlParameter> ObtenerParametros()
         {
             List<SqlParameter> lstParametros = new List<SqlParameter>();

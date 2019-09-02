@@ -104,7 +104,7 @@ namespace APIBritanico.Controllers
                     if (Fachada.ModificarEstudianteGrupo(estudiante))
                         return matricula;
                     else
-                        return BadRequest("Error al actualizar el Grupo del estudiante. Puede hacerlo manualmente desde el listado de Estudiantes");
+                        return BadRequest("Error al actualizar el Grupo del estudiante. DEBE hacerlo manualmente desde el listado de Estudiantes!");
                 }
             }
             catch (Exception ex)
