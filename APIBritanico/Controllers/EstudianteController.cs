@@ -292,7 +292,7 @@ namespace APIBritanico.Controllers
             }
         }
 
-
+        
         //// GET: api/estudiante/GetDeudores/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -356,6 +356,28 @@ namespace APIBritanico.Controllers
                 };
                 List<Estudiante> lstEstudiantes = Fachada.ObtenerEstudiantesByConvenio(convenio);
                 return lstEstudiantes;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        //// GET: api/estudiante/GetPublicidadCantidad/2323
+        [HttpGet("{anio:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<List<PublicidadCantidad>> GetPublicidadCantidad(int anio)
+        {
+            try
+            {
+                if (anio < 2000)
+                {
+                    anio = 0;
+                }
+                List<PublicidadCantidad> lstPublicidad = Fachada.ObtenerPublicidadCantidad(anio);
+                return Ok(lstPublicidad);
             }
             catch (Exception ex)
             {
@@ -466,19 +488,22 @@ namespace APIBritanico.Controllers
         }
 
 
+        //este metodo es llamado por un servicio que se ejecuta automaticamente
         //// POST api/estudiante/ActualizarEstudiantesDeudores/
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public void ActualizarEstudiantesDeudores()
         {
-            Estudiante estudiante = new Estudiante
-            {
-                ID = 350
-            };
-            Fachada.MarcarEstudianteComoDeudor(estudiante);
+            Fachada.MarcarEstudianteComoDeudor();
         }
 
+
+        //este metodo es llamado por un servicio que se ejecuta automaticamente
+        //// POST api/estudiante/MarcarEstudiantesInactivosSinGrupoSinConvenio/
+        [HttpPost]
+        public void MarcarEstudiantesInactivosSinGrupoSinConvenio()
+        {
+            Fachada.MarcarEstudiantesInactivosSinGrupoSinConvenio();
+        }
 
 
         //// POST api/estudiante/DarDeBaja/1,8

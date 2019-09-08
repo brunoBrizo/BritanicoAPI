@@ -206,7 +206,9 @@ GrupoID NUMERIC (10),
 MateriaID NUMERIC (10),
 Activo BIT NOT NULL,
 Validado BIT NOT NULL,
-Deudor BIT NOT NULL
+Deudor BIT NOT NULL,
+TipoPublicidad NUMERIC (2) NOT NULL,
+FechaIngreso DATETIME
 
 CONSTRAINT PK_Estudiante PRIMARY KEY (ID),
 CONSTRAINT FK_Estudiante_ConvenioID FOREIGN KEY (ConvenioID) REFERENCES Convenio (ID),

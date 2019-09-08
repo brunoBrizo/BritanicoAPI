@@ -35,6 +35,8 @@ namespace BibliotecaBritanico.Modelo
         public List<Mensualidad> LstMensualidades { get; set; } = new List<Mensualidad>();
         public bool Validado { get; set; }
         public bool Deudor { get; set; }
+        public TipoPublicidad TipoPublicidad { get; set; }
+        public DateTime FechaIngreso { get; set; }
 
 
         public Estudiante()
@@ -283,6 +285,7 @@ namespace BibliotecaBritanico.Modelo
                     this.Activo = Convert.ToBoolean(reader["Activo"]);
                     this.Validado = Convert.ToBoolean(reader["Validado"]);
                     this.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    this.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     ok = true;
                 }
             }
@@ -309,7 +312,9 @@ namespace BibliotecaBritanico.Modelo
             try
             {
                 List<SqlParameter> lstParametros = this.ObtenerParametros();
-                string sql = "INSERT INTO Estudiante VALUES (@Nombre, @TipoDocumento, @CI, @Tel, @Email, @Direccion, @FechaNac, @Alergico, @Alergias, @ContactoAlternativoUno, @ContactoAlternativoUnoTel, @ContactoAlternativoDos, @ContactoAlternativoDosTel, @ConvenioID, @GrupoID, @MateriaID, @Activo, @Validado, 0); SELECT CAST (SCOPE_IDENTITY() AS INT);";
+                DateTime fechaIngreso = DateTime.Now;
+                lstParametros.Add(new SqlParameter("@FechaIngreso", fechaIngreso));
+                string sql = "INSERT INTO Estudiante VALUES (@Nombre, @TipoDocumento, @CI, @Tel, @Email, @Direccion, @FechaNac, @Alergico, @Alergias, @ContactoAlternativoUno, @ContactoAlternativoUnoTel, @ContactoAlternativoDos, @ContactoAlternativoDosTel, @ConvenioID, @GrupoID, @MateriaID, @Activo, @Validado, 0, @TipoPublicidad, @FechaIngreso); SELECT CAST (SCOPE_IDENTITY() AS INT);";
                 this.ID = 0;
                 this.ID = Convert.ToInt32(Persistencia.EjecutarScalar(con, sql, CommandType.Text, lstParametros, null));
                 if (this.ID > 0) seGuardo = true;
@@ -330,7 +335,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Estudiante SET Nombre = @Nombre, Tel = @Tel, Email = @Email, Direccion = @Direccion, FechaNac = @FechaNac, Alergico = @Alergico, Alergias = @Alergias, ContactoAlternativoUno = @ContactoAlternativoUno, ContactoAlternativoUnoTel = @ContactoAlternativoUnoTel, ContactoAlternativoDos = @ContactoAlternativoDos, ContactoAlternativoDosTel = @ContactoAlternativoDosTel, ConvenioID = @ConvenioID, GrupoID = @GrupoID, MateriaID = @MateriaID, Activo = @Activo, Validado = @Validado WHERE ID = @ID;";
+            string sql = "UPDATE Estudiante SET Nombre = @Nombre, Tel = @Tel, Email = @Email, Direccion = @Direccion, FechaNac = @FechaNac, Alergico = @Alergico, Alergias = @Alergias, ContactoAlternativoUno = @ContactoAlternativoUno, ContactoAlternativoUnoTel = @ContactoAlternativoUnoTel, ContactoAlternativoDos = @ContactoAlternativoDos, ContactoAlternativoDosTel = @ContactoAlternativoDosTel, ConvenioID = @ConvenioID, GrupoID = @GrupoID, MateriaID = @MateriaID, Activo = @Activo, Validado = @Validado, TipoPublicidad = @TipoPublicidad WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -412,6 +417,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -467,6 +473,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -522,6 +529,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -578,6 +586,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = false;
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -614,6 +623,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@ContactoAlternativoUnoTel", this.ContactoAlternativoUnoTel));
             lstParametros.Add(new SqlParameter("@ContactoAlternativoDos", this.ContactoAlternativoDos));
             lstParametros.Add(new SqlParameter("@ContactoAlternativoDosTel", this.ContactoAlternativoDosTel));
+            lstParametros.Add(new SqlParameter("@TipoPublicidad", this.TipoPublicidad));
             if (this.Convenio != null)
             {
                 lstParametros.Add(new SqlParameter("@ConvenioID", this.Convenio.ID));
@@ -669,6 +679,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -727,6 +738,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -798,6 +810,7 @@ namespace BibliotecaBritanico.Modelo
                     this.Activo = Convert.ToBoolean(reader["Activo"]);
                     this.Validado = Convert.ToBoolean(reader["Validado"]);
                     this.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    this.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     Mensualidad mensualidad = new Mensualidad
                     {
                         ID = 0,
@@ -887,6 +900,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -941,6 +955,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -997,6 +1012,7 @@ namespace BibliotecaBritanico.Modelo
                     estudiante.Activo = Convert.ToBoolean(reader["Activo"]);
                     estudiante.Validado = Convert.ToBoolean(reader["Validado"]);
                     estudiante.Deudor = Convert.ToBoolean(reader["Deudor"]);
+                    estudiante.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
                     lstEstudiantes.Add(estudiante);
                 }
             }
@@ -1286,7 +1302,7 @@ namespace BibliotecaBritanico.Modelo
                 string sqlExamen = "SELECT ID FROM ExamenEstudiante WHERE EstudianteID = @EstudianteID AND GrupoID = @GrupoID AND Aprobado = 0 AND Pago = 0";
                 lstParametrosExamen.Add(new SqlParameter("@EstudianteID", this.ID));
                 lstParametrosExamen.Add(new SqlParameter("@GrupoID", this.GrupoID));
-                
+
                 readerExamen = this.EjecutarConsulta(con, sqlExamen, lstParametrosExamen, CommandType.Text, tran);
                 List<ExamenEstudiante> lstExamenEstudiante = new List<ExamenEstudiante>();
                 while (readerExamen.Read())
@@ -1586,6 +1602,80 @@ namespace BibliotecaBritanico.Modelo
                 con.Close();
             }
             return SeModifico;
+        }
+
+        public static bool SetInactivoSinGrupoSinConvenio(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            string sql = "UPDATE Estudiante SET GrupoID = 0, MateriaID = 0, ConvenioID = 0, Activo = 0;";
+            try
+            {
+                con.Open();
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, null, CommandType.Text, null);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return SeModifico;
+        }
+
+        public static List<PublicidadCantidad> GetPublicidadCantidad(string strCon, int anio = 1000)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<PublicidadCantidad> lstPublicidad = new List<PublicidadCantidad>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            string sql = "";
+            if (anio > 1000)
+            {
+                lstParametros.Add(new SqlParameter("@Anio", anio));
+                sql = "SELECT E.TipoPublicidad, COUNT(E.TipoPublicidad) AS Cantidad, YEAR(FechaIngreso) AS Anio FROM Estudiante E WHERE YEAR(FechaIngreso) = @Anio GROUP BY E.TipoPublicidad, YEAR(FechaIngreso);";
+            }
+            else
+            {
+                lstParametros = null;
+                sql = "SELECT E.TipoPublicidad, COUNT(E.TipoPublicidad) AS Cantidad, YEAR(FechaIngreso) AS Anio FROM Estudiante E GROUP BY E.TipoPublicidad, YEAR(FechaIngreso);";
+            }
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    PublicidadCantidad publicidad = new PublicidadCantidad();
+                    publicidad.Anio = Convert.ToInt32(reader["Anio"]);
+                    publicidad.Cantidad = Convert.ToInt32(reader["Cantidad"]);
+                    publicidad.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
+                    lstPublicidad.Add(publicidad);
+                }
+                lstPublicidad = lstPublicidad.OrderBy(p => p.TipoPublicidad).OrderBy(p => p.Anio).ToList();
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstPublicidad;
         }
 
         #endregion

@@ -11,7 +11,7 @@ namespace DBConnection
     public class AppSettings
     {
         private static string rutaConexion = @"C:\BritanicoApp\Conexion\connection.txt";
-        private static Configuration config = ConfigurationManager.OpenExeConfiguration(AppSettings.rutaConexion);
+        //private static Configuration config = ConfigurationManager.OpenExeConfiguration(AppSettings.rutaConexion);
 
         public AppSettings() { }
 

@@ -67,9 +67,11 @@
     <Compile Include="Modelo\Materia.cs" />
     <Compile Include="Modelo\MatriculaEstudiante.cs" />
     <Compile Include="Modelo\Mensualidad.cs" />
+    <Compile Include="Modelo\PublicidadCantidad.cs" />
     <Compile Include="Modelo\Sucursal.cs" />
     <Compile Include="Modelo\TipoDocumento.cs" />
     <Compile Include="Modelo\TipoPago.cs" />
+    <Compile Include="Modelo\TipoPublicidad.cs" />
     <Compile Include="Modelo\VentaLibro.cs" />
     <Compile Include="Modelo\VentaLibroEstado.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

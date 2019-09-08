@@ -955,6 +955,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             SqlTransaction tran = null;
+            SqlDataReader reader = null;
             bool SeModifico = false;
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@ID", this.ID));
@@ -972,9 +973,37 @@ namespace BibliotecaBritanico.Modelo
                 res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
                 if (res > 0)
                 {
+                    List<SqlParameter> lstParametrosAux = new List<SqlParameter>();
+                    lstParametrosAux.Add(new SqlParameter("@ID", this.ID));
+                    lstParametrosAux.Add(new SqlParameter("@ExamenID", this.Examen.ID));
+                    lstParametrosAux.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
+                    string sqlMaxCuota = "SELECT MAX(ID) AS IDCuota FROM ExamenEstudianteCuota WHERE ExamenEstudianteID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID";
+                    reader = this.EjecutarConsulta(con, sqlMaxCuota, lstParametrosAux, CommandType.Text, tran);
+                    int maxCuota = 0;
+                    while (reader.Read())
+                    {
+                        maxCuota = Convert.ToInt32(reader["IDCuota"]);
+                    }
+                    reader.Close();
+                    if (maxCuota == this.LstCuotas[0].ID)
+                    {
+                        //es la ultima cuota, por lo tanto marco al examen estudiante como pago
+                        res = 0;
+                        string sqlExamenEstudiante = "UPDATE ExamenEstudiante SET Pago = 1 WHERE ID = @ID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID";
+                        List<SqlParameter> lstParametrosExamenEstudiante = new List<SqlParameter>();
+                        lstParametrosExamenEstudiante.Add(new SqlParameter("@ID", this.ID));
+                        lstParametrosExamenEstudiante.Add(new SqlParameter("@ExamenID", this.Examen.ID));
+                        lstParametrosExamenEstudiante.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
+                        lstParametrosExamenEstudiante.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
+                        res = Persistencia.EjecutarNoQuery(con, sqlExamenEstudiante, lstParametrosExamenEstudiante, CommandType.Text, tran);
+                    }
                     SeModifico = true;
+                    tran.Commit();
                 }
-                tran.Commit();
+                else
+                {
+                    tran.Rollback();
+                }
             }
             catch (SqlException ex)
             {
@@ -1076,9 +1105,31 @@ namespace BibliotecaBritanico.Modelo
             return SeModifico;
         }
 
+        private SqlDataReader EjecutarConsulta(SqlConnection con, string sql, List<SqlParameter> listaParametros, CommandType tipo, SqlTransaction tran)
+        {
+            SqlDataReader reader = null;
+            try
+            {
+                SqlCommand comando = new SqlCommand(sql, con);
+                comando.CommandType = tipo;
+                if (listaParametros != null)
+                {
+                    comando.Parameters.AddRange(listaParametros.ToArray());
+                }
+                if (tran != null)
+                {
+                    comando.Transaction = tran;
+                }
+                reader = comando.ExecuteReader();
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            return reader;
+        }
 
         #endregion
-
-
+        
     }
 }

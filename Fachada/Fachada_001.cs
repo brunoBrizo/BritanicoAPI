@@ -1892,11 +1892,15 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
-        public void MarcarEstudianteComoDeudor(Estudiante estudiante)
+        public void MarcarEstudianteComoDeudor()
         {
             try
             {
-                estudiante.SetDeudor(Fachada_001.Conexion, true);
+                List<Estudiante> lstEstudiante = this.ObtenerEstudiantesDeudores();
+                foreach (Estudiante estudiante in lstEstudiante)
+                {
+                    estudiante.SetDeudor(Fachada_001.Conexion, true);
+                }
             }
             catch (ValidacionException ex)
             {
@@ -1904,13 +1908,57 @@ namespace BibliotecaBritanico.Fachada
             }
             catch (SqlException ex)
             {
-                Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                Herramientas.CrearLogError("Estudiante", "Error en MarcarEstudianteComoDeudor | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en MarcarEstudianteComoDeudor | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+            }
+        }
+
+        public void MarcarEstudiantesInactivosSinGrupoSinConvenio()
+        {
+            try
+            {
+                Estudiante.SetInactivoSinGrupoSinConvenio(Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en MarcarEstudiantesInactivosSinGrupoSinConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
                 //throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
             }
             catch (Exception ex)
             {
-                //Herramientas.CrearLogError("Estudiante", "Error en ObtenerEscolaridad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
-                throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
+                Herramientas.CrearLogError("Estudiante", "Error en MarcarEstudiantesInactivosSinGrupoSinConvenio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                //throw new Exception("Error obteniendo escolaridad del estudiante | Error: " + ex.Message);
+            }
+        }
+
+        public List<PublicidadCantidad> ObtenerPublicidadCantidad(int anio)
+        {
+            try
+            {
+                List<PublicidadCantidad> lstPublicidad = new List<PublicidadCantidad>();
+                lstPublicidad = Estudiante.GetPublicidadCantidad(Fachada_001.Conexion, anio);
+                return lstPublicidad;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerPublicidadCantidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo datos de publicidad | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Estudiante", "Error en ObtenerPublicidadCantidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo datos de publicidad | Error: " + ex.Message);
             }
         }
 
@@ -3306,7 +3354,13 @@ namespace BibliotecaBritanico.Fachada
         {
             try
             {
-                if (examenEstudiante.Leer(Fachada_001.Conexion))
+                ExamenEstudiante examenEstudianteAux = new ExamenEstudiante
+                {
+                    ID = examenEstudiante.ID,
+                    Examen = examenEstudiante.Examen,
+                    Estudiante = examenEstudiante.Estudiante
+                };
+                if (examenEstudianteAux.Leer(Fachada_001.Conexion))
                 {
                     if (examenEstudiante.PagarCuota(Fachada_001.Conexion))
                     {
