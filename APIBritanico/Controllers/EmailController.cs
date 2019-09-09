@@ -92,6 +92,17 @@ namespace APIBritanico.Controllers
         }
 
 
+        //este metodo es llamado desde un servicio de windows el 8 de cada mes
+        //// GET: api/email/EnviarMailVencimientoMensualidad/
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async void EnviarMailVencimientoMensualidad()
+        {
+            await Fachada.EnviarMailVencimientoMensualidad();
+        }
+
+
         //// POST api/email/crear/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]

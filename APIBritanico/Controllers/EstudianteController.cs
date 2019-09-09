@@ -489,8 +489,8 @@ namespace APIBritanico.Controllers
 
 
         //este metodo es llamado por un servicio que se ejecuta automaticamente
-        //// POST api/estudiante/ActualizarEstudiantesDeudores/
-        [HttpPost]
+        //// GET api/estudiante/ActualizarEstudiantesDeudores/
+        [HttpGet]
         public void ActualizarEstudiantesDeudores()
         {
             Fachada.MarcarEstudianteComoDeudor();
@@ -498,8 +498,8 @@ namespace APIBritanico.Controllers
 
 
         //este metodo es llamado por un servicio que se ejecuta automaticamente
-        //// POST api/estudiante/MarcarEstudiantesInactivosSinGrupoSinConvenio/
-        [HttpPost]
+        //// GET api/estudiante/MarcarEstudiantesInactivosSinGrupoSinConvenio/
+        [HttpGet]
         public void MarcarEstudiantesInactivosSinGrupoSinConvenio()
         {
             Fachada.MarcarEstudiantesInactivosSinGrupoSinConvenio();

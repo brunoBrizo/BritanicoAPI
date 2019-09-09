@@ -9,7 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBConnection", "DBConnectio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIBritanico", "APIBritanico\APIBritanico.csproj", "{9CF08D7F-8CB7-4A0D-904A-63F34AB2F622}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActualizarDeudores", "ActualizarDeudores\ActualizarDeudores\ActualizarDeudores.csproj", "{38730083-1514-4059-90F4-0DF24E4B5F14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BritanicoService", "BritanicoService\BritanicoService.csproj", "{262FA92C-712D-4464-8453-E1F396833DC2}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BritanicoService.Installer", "BritanicoService.Installer\BritanicoService.Installer.vdproj", "{CE077055-E490-416B-8119-F16A6D8522DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +31,12 @@ Global
 		{9CF08D7F-8CB7-4A0D-904A-63F34AB2F622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CF08D7F-8CB7-4A0D-904A-63F34AB2F622}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CF08D7F-8CB7-4A0D-904A-63F34AB2F622}.Release|Any CPU.Build.0 = Release|Any CPU
-		{38730083-1514-4059-90F4-0DF24E4B5F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38730083-1514-4059-90F4-0DF24E4B5F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38730083-1514-4059-90F4-0DF24E4B5F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38730083-1514-4059-90F4-0DF24E4B5F14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{262FA92C-712D-4464-8453-E1F396833DC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{262FA92C-712D-4464-8453-E1F396833DC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{262FA92C-712D-4464-8453-E1F396833DC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{262FA92C-712D-4464-8453-E1F396833DC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE077055-E490-416B-8119-F16A6D8522DE}.Debug|Any CPU.ActiveCfg = Debug
+		{CE077055-E490-416B-8119-F16A6D8522DE}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1613,7 +1613,7 @@ namespace BibliotecaBritanico.Modelo
             {
                 con.Open();
                 int res = 0;
-                res = Persistencia.EjecutarNoQuery(con, sql, null, CommandType.Text, null);
+                res = Persistencia.EjecutarNoQuery(con, sql, new List<SqlParameter>(), CommandType.Text, null);
                 if (res > 0) SeModifico = true;
             }
             catch (SqlException ex)

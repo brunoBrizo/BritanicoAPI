@@ -231,6 +231,66 @@ namespace BibliotecaBritanico.Modelo
             }
         }
 
+        public async Task<bool> EnviarMailVencimientoMensualidad(string strCon)
+        {
+            bool ok = true;
+            try
+            {
+                List<Estudiante> lstEstudiantes = Email.GetEstudiantesAvisoMensualidad(strCon);
+                if (lstEstudiantes.Count > 0)
+                {
+                    string CCO = String.Empty;
+                    foreach (Estudiante estudiante in lstEstudiantes)
+                    {
+                        CCO += estudiante.Email + ",";
+                    }
+                    CCO = CCO.TrimEnd(',');
+
+                    //datos de email
+                    Parametro paramEmail = new Parametro
+                    {
+                        ID = 1
+                    };
+                    paramEmail.Leer(strCon);
+                    Parametro paramClave = new Parametro
+                    {
+                        ID = 3
+                    };
+                    paramClave.Leer(strCon);
+
+                    this.Asunto = "Notificación por vencimiento de mensualidad";
+                    this.DestinatarioEmail = paramEmail.Valor;
+                    this.DestinatarioNombre = "Instituto Británico de Rivera";
+                    this.Enviado = true;
+                    this.FechaHora = DateTime.Now;
+                    this.CuerpoHTML = "Estimado estudiante, le informamos por este medio que el dia 10 del actual mes vence el plazo para abonar su mensualidad.<br/>";
+                    this.CuerpoHTML += "Pasada la fecha, la misma tendrá un recargo de %10.";
+                    this.CuerpoHTML += "<br/>";
+                    this.CuerpoHTML += "<br/>";
+                    this.CuerpoHTML += "Lo saluda atentamente, la Dirección.";
+                    if (this.Guardar(strCon))
+                    {
+                        await this.Enviar(strCon, paramEmail, paramClave, CCO);
+                        ok = true;
+                    }
+                    else
+                    {
+                        ok = false;
+                    }                    
+                }
+                return ok;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
         #region Persistencia
 
@@ -500,8 +560,7 @@ namespace BibliotecaBritanico.Modelo
             }
             return lstEmail;
         }
-
-
+        
         public override List<SqlParameter> ObtenerParametros()
         {
             List<SqlParameter> lstParametros = new List<SqlParameter>();
@@ -524,6 +583,43 @@ namespace BibliotecaBritanico.Modelo
         public List<Email> GetAllLazy(string strCon)
         {
             return this.GetAll(strCon);
+        }
+
+        public static List<Estudiante> GetEstudiantesAvisoMensualidad(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiantes = new List<Estudiante>();
+            string sql = "SELECT DISTINCT E.ID, E.Email FROM Mensualidad M, Estudiante E WHERE M.EstudianteID = E.ID AND E.GrupoID = M.GrupoID AND E.MateriaID = M.MateriaID AND M.AnioAsociado = @Anio AND M.MesAsociado = @Mes AND Paga = 0 AND Anulado = 0;";
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@Anio", DateTime.Now.Year));
+            lstParametros.Add(new SqlParameter("@Mes", DateTime.Now.Month));
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["ID"]);
+                    estudiante.Email = reader["Email"].ToString().Trim();
+                    lstEstudiantes.Add(estudiante);
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return lstEstudiantes;
         }
 
 

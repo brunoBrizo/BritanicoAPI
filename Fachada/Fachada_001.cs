@@ -100,6 +100,30 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public async Task<bool> EnviarMailVencimientoMensualidad()
+        {
+            try
+            {
+                Email email = new Email();
+                bool ret = await email.EnviarMailVencimientoMensualidad(Fachada_001.Conexion);
+                return ret;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Email", "Error en EnviarMailVencimientoMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Email", "Error en EnviarMailVencimientoMensualidad | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                return false;
+            }
+        }
+
         public bool ModificarEmail(Email email)
         {
             try
