@@ -41,7 +41,7 @@ namespace BibliotecaBritanico.Modelo
             {
                 errorMsg += "Debe asociar una materia al libro \n";
             }
-            if (errorMsg.Equals(String.Empty) && Libro.ExisteLibro(strCon, libro))
+            if (errorMsg.Equals(String.Empty) && Libro.ExisteLibroByNombre(strCon, libro))
             {
                 errorMsg += "Ya existe el libro \n";
             }
@@ -67,9 +67,25 @@ namespace BibliotecaBritanico.Modelo
             {
                 errorMsg += "Debe asociar una materia al libro \n";
             }
-            if (errorMsg.Equals(String.Empty) && !Libro.ExisteLibro(strCon, libro))
+            if (errorMsg.Equals(String.Empty))
             {
-                errorMsg += "No existe el libro que desea modificar \n";
+                Libro libroAux = new Libro();
+                libroAux.Materia = libro.Materia;
+                libroAux.ID = libro.ID;
+                if (libroAux.Leer(strCon))
+                {
+                    if (libroAux.Nombre != libro.Nombre)
+                    {
+                        if (Libro.ExisteLibroByNombre(strCon, libro))
+                        {
+                            errorMsg = "Ya existe un libro con el nombre seleccionado";
+                        }
+                    }
+                }
+                else
+                {
+                    errorMsg += "No existe el libro que desea modificar \n";
+                }
             }
             if (!errorMsg.Equals(String.Empty))
             {
@@ -90,6 +106,51 @@ namespace BibliotecaBritanico.Modelo
                 {
                     sql = "SELECT * FROM Libro WHERE ID = @ID AND MateriaID = @MateriaID";
                     lstParametros.Add(new SqlParameter("@ID", libro.ID));
+                    lstParametros.Add(new SqlParameter("@MateriaID", libro.Materia.ID));
+                }
+                else
+                {
+                    throw new ValidacionException("Datos insuficientes para buscar al libro");
+                }
+                try
+                {
+                    con.Open();
+                    reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                    while (reader.Read())
+                    {
+                        existe = true;
+                        break;
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    throw ex;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    reader.Close();
+                    con.Close();
+                }
+                return existe;
+            }
+        }
+
+        public static bool ExisteLibroByNombre(string strCon, Libro libro)
+        {
+            {
+                SqlConnection con = new SqlConnection(strCon);
+                bool existe = false;
+                List<SqlParameter> lstParametros = new List<SqlParameter>();
+                SqlDataReader reader = null;
+                string sql = "";
+                if (libro.Materia != null && libro.Materia.ID > 0)
+                {
+                    sql = "SELECT * FROM Libro WHERE MateriaID = @MateriaID AND Nombre = @Nombre";
+                    lstParametros.Add(new SqlParameter("@Nombre", libro.Nombre));
                     lstParametros.Add(new SqlParameter("@MateriaID", libro.Materia.ID));
                 }
                 else

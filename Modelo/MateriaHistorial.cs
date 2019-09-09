@@ -43,12 +43,12 @@ namespace BibliotecaBritanico.Modelo
                 else if (materiaHistorial.MateriaID > 0 && materiaHistorial.Anio > 2000)
                 {
                     sql = "SELECT * FROM MateriaHistorial WHERE MateriaID = @MateriaID AND Anio = @Anio";
-                    lstParametros.Add(new SqlParameter("@Nombre", materiaHistorial.MateriaID));
-                    lstParametros.Add(new SqlParameter("@Nombre", materiaHistorial.Anio));
+                    lstParametros.Add(new SqlParameter("@MateriaID", materiaHistorial.MateriaID));
+                    lstParametros.Add(new SqlParameter("@Anio", materiaHistorial.Anio));
                     if (materiaHistorial.SucursalID > 0)
                     {
                         sql = "SELECT * FROM MateriaHistorial WHERE MateriaID = @MateriaID AND Anio = @Anio AND SucursalID = @SucursalID";
-                        lstParametros.Add(new SqlParameter("@Nombre", materiaHistorial.SucursalID));
+                        lstParametros.Add(new SqlParameter("@SucursalID", materiaHistorial.SucursalID));
                     }
                 }
                 else
@@ -82,7 +82,7 @@ namespace BibliotecaBritanico.Modelo
             }
         }
 
-        public static bool ExisteMateriaHistorial(MateriaHistorial materiaHistorial, SqlConnection con)
+        public static bool ExisteMateriaHistorial(MateriaHistorial materiaHistorial, SqlConnection con, SqlTransaction tran)
         {
             {
                 bool ok = false;
@@ -97,9 +97,9 @@ namespace BibliotecaBritanico.Modelo
                 else if (materiaHistorial.MateriaID > 0 && materiaHistorial.Anio > 2000 && materiaHistorial.SucursalID > 0)
                 {
                     sql = "SELECT * FROM MateriaHistorial WHERE MateriaID = @MateriaID AND Anio = @Anio AND SucursalID = @SucursalID";
-                    lstParametros.Add(new SqlParameter("@Nombre", materiaHistorial.MateriaID));
-                    lstParametros.Add(new SqlParameter("@Nombre", materiaHistorial.SucursalID));
-                    lstParametros.Add(new SqlParameter("@Nombre", materiaHistorial.Anio));
+                    lstParametros.Add(new SqlParameter("@MateriaID", materiaHistorial.MateriaID));
+                    lstParametros.Add(new SqlParameter("@SucursalID", materiaHistorial.SucursalID));
+                    lstParametros.Add(new SqlParameter("@Anio", materiaHistorial.Anio));
                 }
                 else
                 {
@@ -107,12 +107,13 @@ namespace BibliotecaBritanico.Modelo
                 }
                 try
                 {
-                    reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                    reader = MateriaHistorial.EjecutarConsulta(con, sql, lstParametros, CommandType.Text, tran);
                     while (reader.Read())
                     {
                         ok = true;
                         break;
                     }
+                    reader.Close();
                 }
                 catch (SqlException ex)
                 {
@@ -121,10 +122,6 @@ namespace BibliotecaBritanico.Modelo
                 catch (Exception ex)
                 {
                     throw ex;
-                }
-                finally
-                {
-                    reader.Close();
                 }
                 return ok;
             }
@@ -457,5 +454,31 @@ namespace BibliotecaBritanico.Modelo
         }
 
         #endregion
+
+        private static SqlDataReader EjecutarConsulta(SqlConnection con, string sql, List<SqlParameter> listaParametros, CommandType tipo, SqlTransaction tran)
+        {
+            SqlDataReader reader = null;
+            try
+            {
+                SqlCommand comando = new SqlCommand(sql, con);
+                comando.CommandType = tipo;
+                if (listaParametros != null)
+                {
+                    comando.Parameters.AddRange(listaParametros.ToArray());
+                }
+                if (tran != null)
+                {
+                    comando.Transaction = tran;
+                }
+                reader = comando.ExecuteReader();
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            return reader;
+        }
+
+
     }
 }

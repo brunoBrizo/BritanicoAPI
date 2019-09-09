@@ -241,7 +241,7 @@ namespace BibliotecaBritanico.Modelo
                             Anio = DateTime.Now.Year,
                             SucursalID = this.SucursalID
                         };
-                        if (!MateriaHistorial.ExisteMateriaHistorial(materiaHistorial, con))
+                        if (!MateriaHistorial.ExisteMateriaHistorial(materiaHistorial, con, tran))
                             materiaHistorial.GuardarTransaccional(con, tran);
                         seGuardo = true;
                     }
@@ -250,11 +250,19 @@ namespace BibliotecaBritanico.Modelo
             }
             catch (SqlException ex)
             {
+                tran.Rollback();
+                tran.Dispose();
                 throw ex;
             }
             catch (Exception ex)
             {
+                tran.Rollback();
+                tran.Dispose();
                 throw ex;
+            }
+            finally
+            {
+                con.Close();
             }
             return seGuardo;
         }
@@ -456,6 +464,8 @@ namespace BibliotecaBritanico.Modelo
         }
 
         #endregion
+
+        
 
     }
 }
