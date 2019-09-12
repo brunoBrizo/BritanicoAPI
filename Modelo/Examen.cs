@@ -677,6 +677,49 @@ namespace BibliotecaBritanico.Modelo
             return lstExamenes;
         }
 
+        public bool LeerByMateriaAnio(string strCon)
+        {
+            bool ok = false;
+            SqlConnection con = new SqlConnection(strCon);
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
+            lstParametros.Add(new SqlParameter("@MateriaID", this.MateriaID));
+            string sql = "SELECT * FROM Examen WHERE AnioAsociado = @AnioAsociado AND MateriaID = @MateriaID ORDER BY Precio DESC;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    this.ID = Convert.ToInt32(reader["ID"]);
+                    this.Grupo.ID = Convert.ToInt32(reader["GrupoID"]);
+                    this.GrupoID = Convert.ToInt32(reader["GrupoID"]);
+                    this.Grupo.Materia.ID = this.MateriaID;
+                    this.FechaHora = Convert.ToDateTime(reader["FechaHora"]);
+                    this.NotaMinima = Convert.ToInt32(reader["NotaMinima"]);
+                    this.Precio = Convert.ToDecimal(reader["Precio"]);
+                    this.Calificado = Convert.ToBoolean(reader["Calificado"]);
+                    ok = true;
+                    break;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return ok;
+        }
+
 
         #endregion
 

@@ -21,7 +21,6 @@ namespace BibliotecaBritanico.Modelo
         public decimal NotaFinalOralMax { get; set; }
         public decimal NotaFinalWrittingMax { get; set; }
         public decimal NotaFinalListeningMax { get; set; }
-        public decimal ExamenPrecio { get; set; } //se utiliza para dar de alta el historial, para matricular estudiantes por convenio
 
 
         public Materia()
@@ -237,9 +236,10 @@ namespace BibliotecaBritanico.Modelo
                         {
                             ID = 0,
                             MateriaID = this.ID,
-                            ExamenPrecio = this.ExamenPrecio,
+                            ExamenPrecio = 0,
                             Anio = DateTime.Now.Year,
-                            SucursalID = this.SucursalID
+                            SucursalID = this.SucursalID,
+                            MensualidadPrecio = this.Precio
                         };
                         if (!MateriaHistorial.ExisteMateriaHistorial(materiaHistorial, con, tran))
                             materiaHistorial.GuardarTransaccional(con, tran);

@@ -257,6 +257,13 @@ namespace BibliotecaBritanico.Modelo
                     res = Convert.ToInt32(Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran));
                     if (res > 0 && this.Estudiante.SetActivo(con, tran))
                     {
+                        MateriaHistorial materiaHistorial = new MateriaHistorial
+                        {
+                            ID = 0,
+                            MateriaID = this.MateriaID,
+                            SucursalID = this.SucursalID
+                        };
+                        materiaHistorial.ModificarCantidadAlumnos(con, tran, this.GrupoID);
                         seGuardo = true;
                     }
                     else

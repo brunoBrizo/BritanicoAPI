@@ -280,6 +280,56 @@ namespace BibliotecaBritanico.Modelo
             return SeModifico;
         }
 
+        public bool ModificarCantidadGrupos(SqlConnection con, SqlTransaction tran)
+        {
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@SucursalID", this.SucursalID));
+            lstParametros.Add(new SqlParameter("@MateriaID", this.MateriaID));
+            lstParametros.Add(new SqlParameter("@Anio", this.Anio));
+            string sql = "UPDATE MateriaHistorial SET CantidadGrupos = 1 + (SELECT CantidadGrupos FROM MateriaHistorial WHERE MateriaID = @MateriaID AND Anio = @Anio AND SucursalID = @SucursalID) WHERE MateriaID = @MateriaID AND Anio = @Anio AND SucursalID = @SucursalID;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
+        public bool ModificarCantidadAlumnos(SqlConnection con, SqlTransaction tran, int grupoID)
+        {
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@SucursalID", this.SucursalID));
+            lstParametros.Add(new SqlParameter("@MateriaID", this.MateriaID));
+            lstParametros.Add(new SqlParameter("@GrupoID", grupoID));
+            string sql = "UPDATE MateriaHistorial SET CantidadAlumnos = 1 + (SELECT CantidadAlumnos FROM MateriaHistorial WHERE MateriaID = @MateriaID AND Anio = (SELECT Anio FROM Grupo WHERE ID = @GrupoID and MateriaID = @MateriaID) AND SucursalID = @SucursalID)  WHERE MateriaID = @MateriaID AND Anio = (SELECT Anio FROM Grupo WHERE ID = @GrupoID and MateriaID = @MateriaID) AND SucursalID = @SucursalID;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, tran);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return SeModifico;
+        }
+
         public bool Eliminar(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);

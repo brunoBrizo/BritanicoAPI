@@ -2720,6 +2720,32 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public Examen GetExamenByMateriaAnio(Examen examen)
+        {
+            try
+            {
+                if (examen.LeerByMateriaAnio(Fachada_001.Conexion))
+                {
+                    return examen;
+                }
+                return null;
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Examen", "Error en GetExamenByMateriaAnio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examen por materia | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Examen", "Error en GetExamenByMateriaAnio | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error obteniendo examen por materia | Error: " + ex.Message);
+            }
+        }
+
         public List<Estudiante> ObtenerEstudiantesByExamen(Examen examen)
         {
             try

@@ -96,6 +96,37 @@ namespace APIBritanico.Controllers
         }
 
 
+        //// GET: api/examen/GetByMateriaAnio/2020,1
+        [HttpGet("{anio:int},{materiaID:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Examen> GetByMateriaAnio(int anio, int materiaID)
+        {
+            try
+            {
+                if (anio > 2000 && materiaID > 0)
+                {
+                    Examen examen = new Examen
+                    {
+                        ID = 0,
+                        AnioAsociado = anio,
+                        MateriaID = materiaID
+                    };
+                    examen = Fachada.GetExamenByMateriaAnio(examen);
+                    return Ok(examen);
+                }
+                else
+                {
+                    return BadRequest("Debe enviar año y materia");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         //// GET: api/examen/getallbyanio/
         [HttpGet("{anio:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

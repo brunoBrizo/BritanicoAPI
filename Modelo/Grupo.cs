@@ -389,10 +389,9 @@ namespace BibliotecaBritanico.Modelo
                         ID = 0,
                         MateriaID = this.MateriaID,
                         SucursalID = this.SucursalID,
-                        MensualidadPrecio = this.Precio,
                         Anio = this.Anio
                     };
-                    materiaHistorial.GuardarTransaccional(con, tran);
+                    materiaHistorial.ModificarCantidadGrupos(con, tran);
                     tran.Commit();
                     seGuardo = true;
                 }
