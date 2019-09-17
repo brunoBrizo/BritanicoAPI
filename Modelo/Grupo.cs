@@ -421,7 +421,7 @@ namespace BibliotecaBritanico.Modelo
             SqlTransaction tran = null;
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Grupo SET MateriaID = @MateriaID, SucursalID = @SucursalID, FuncionarioID = @FuncionarioID, HoraInicio = @HoraInicio, HoraFin = @HoraFin, Precio = @Precio, Anio = @Anio WHERE ID = @ID;";
+            string sql = "UPDATE Grupo SET FuncionarioID = @FuncionarioID, HoraInicio = @HoraInicio, HoraFin = @HoraFin, Precio = @Precio, Anio = @Anio WHERE ID = @ID;";
             try
             {
                 con.Open();

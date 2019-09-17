@@ -357,13 +357,12 @@ FormaPago NUMERIC (1),
 Pago BIT NOT NULL,
 Precio NUMERIC (10, 2),
 FuncionarioID NUMERIC (10),
-Anulado BIT NOT NULL
+Anulado BIT NOT NULL,
 FaltasEnClase NUMERIC (3),
 NotaFinalOral NUMERIC (5, 2),
 NotaFinalWritting NUMERIC (5, 2),
 NotaFinalListening NUMERIC (5, 2),
 InternalAssessment NUMERIC (5, 2)
-
 
 CONSTRAINT PK_ExamenEstudiante PRIMARY KEY (ID, ExamenID, GrupoID, EstudianteID),
 CONSTRAINT FK_ExamenEstudiante_ExamenID FOREIGN KEY (ExamenID, GrupoID) REFERENCES Examen (ID, GrupoID),
@@ -441,65 +440,124 @@ INSERT INTO Sucursal VALUES ('Rivera Chico', 'administracion@britanico.uy', 'Cua
 
 SET IDENTITY_INSERT Funcionario ON
 GO
-INSERT INTO Funcionario (ID, SucursalID, CI, Email, Nombre, Telefono, TelefonoAux, Direccion, FechaNac, Clave, Activo, TipoFuncionario) 
-VALUES (0, 0, 0, '', 'Sin Funcionario', '', '', '', '01/01/1950', '', 0, 0);
+INSERT INTO Funcionario (ID, SucursalID, CI, Email, Nombre, Telefono, TelefonoAux, Direccion, FechaNac, Clave, Activo, TipoFuncionario, DebeModificarPassword) 
+VALUES (0, 0, 0, '', 'Sin Funcionario', '', '', '', '01/01/1950', '', 0, 0, 0);
+
+INSERT INTO Funcionario (ID, SucursalID, CI, Email, Nombre, Telefono, TelefonoAux, Direccion, FechaNac, Clave, Activo, TipoFuncionario, DebeModificarPassword) 
+VALUES (1, 1, 48437782, 'bbrizolara7@gmail.com', 'Bruno Brizolara', '099057586', '', '', '14/08/1990', 'q8l8oO7EBgcSvz/SQKDbyg==', 1, 1, 0);
+
 SET IDENTITY_INSERT Funcionario OFF
 GO
 
 
 /* Materias Centro*/
-INSERT INTO Materia VALUES (0, 0, 'Default', 0)
-INSERT INTO Materia VALUES (1, 1, 'Kinder', 1000)
-INSERT INTO Materia VALUES (2, 1, 'Children 1', 1300)
-INSERT INTO Materia VALUES (3, 1, 'Children 2', 1500)
-INSERT INTO Materia VALUES (4, 1, 'J1', 1700)
-INSERT INTO Materia VALUES (5, 1, 'J2', 1900)
-INSERT INTO Materia VALUES (6, 1, 'J2', 2100)
-INSERT INTO Materia VALUES (7, 1, 'J3', 2300)
-INSERT INTO Materia VALUES (8, 1, 'J4', 2500)
-INSERT INTO Materia VALUES (9, 1, 'J5', 2700)
-INSERT INTO Materia VALUES (10, 1, 'J6', 2900)
-INSERT INTO Materia VALUES (11, 1, 'Pre First Certificate of English', 3100)
-INSERT INTO Materia VALUES (12, 1, 'First Certificate of English', 3300)
-INSERT INTO Materia VALUES (13, 1, 'Cambridge Advanced English', 3500)
-INSERT INTO Materia VALUES (14, 1, 'Cambridge Proficiency English', 3900)
+INSERT INTO Materia VALUES (0, 0, 'Default', 0, 40, 50, 0)
+INSERT INTO Materia VALUES (1, 1, 'Kinder 1', 1190, 40, 50, 0)
+INSERT INTO Materia VALUES (2, 1, 'Kinder 2', 1390, 40, 50, 0)
+INSERT INTO Materia VALUES (3, 1, 'Preparatory 1', 1450, 40, 50, 0)
+INSERT INTO Materia VALUES (4, 1, 'Preparatory 2', 1590, 40, 50, 0)
+INSERT INTO Materia VALUES (5, 1, 'Children 1', 1720, 40, 50, 0)
+INSERT INTO Materia VALUES (6, 1, 'Children 2', 1930, 40, 50, 0)
+INSERT INTO Materia VALUES (7, 1, 'Children 3', 2150, 40, 50, 0)
+INSERT INTO Materia VALUES (8, 1, 'J1', 2250, 40, 50, 0)
+INSERT INTO Materia VALUES (9, 1, 'J2', 2350, 40, 50, 0)
+INSERT INTO Materia VALUES (10, 1, 'J3', 2390, 40, 50, 0)
+INSERT INTO Materia VALUES (11, 1, 'J4', 2450, 40, 50, 0)
+INSERT INTO Materia VALUES (12, 1, 'J5', 2560, 40, 40, 10)
+INSERT INTO Materia VALUES (13, 1, 'J6', 2750, 40, 40, 10)
+INSERT INTO Materia VALUES (14, 1, 'Pre First Certificate of English', 2990, 40, 40, 10)
+INSERT INTO Materia VALUES (15, 1, 'First Certificate of English', 3570, 40, 40, 10)
+INSERT INTO Materia VALUES (16, 1, 'Cambridge Advanced English', 3850, 40, 40, 10)
+INSERT INTO Materia VALUES (17, 1, 'Adultos 1/2', 2750, 40, 50, 0)
+INSERT INTO Materia VALUES (18, 1, 'Adultos 3/4', 2990, 40, 40, 10)
 
-/* Materias Sucursal*/
-INSERT INTO Materia VALUES (15, 2, 'Kinder', 700)
-INSERT INTO Materia VALUES (16, 2, 'Children 1', 1000)
-INSERT INTO Materia VALUES (17, 2, 'Children 2', 1200)
-INSERT INTO Materia VALUES (18, 2, 'J1', 1400)
-INSERT INTO Materia VALUES (19, 2, 'J2', 1600)
-INSERT INTO Materia VALUES (20, 2, 'J2', 1800)
-INSERT INTO Materia VALUES (21, 2, 'J3', 2000)
-INSERT INTO Materia VALUES (22, 2, 'J4', 2200)
-INSERT INTO Materia VALUES (23, 2, 'J5', 2400)
-INSERT INTO Materia VALUES (24, 2, 'J6', 2600)
+/* Materias Anexo*/
+INSERT INTO Materia VALUES (19, 2, 'Kinder 1', 1150, 40, 50, 0)
+INSERT INTO Materia VALUES (20, 2, 'Kinder 2', 1250, 40, 50, 0)
+INSERT INTO Materia VALUES (21, 2, 'Preparatory 1', 1390, 40, 50, 0)
+INSERT INTO Materia VALUES (22, 2, 'Children 1', 1490, 40, 50, 0)
+INSERT INTO Materia VALUES (23, 2, 'Children 2', 1590, 40, 50, 0)
+INSERT INTO Materia VALUES (24, 2, 'Children 3', 1690, 40, 50, 0)
+INSERT INTO Materia VALUES (25, 2, 'J1', 1800, 40, 50, 0)
+INSERT INTO Materia VALUES (26, 2, 'J2', 1990, 40, 50, 0)
+INSERT INTO Materia VALUES (27, 2, 'J3', 2150, 40, 50, 0)
+INSERT INTO Materia VALUES (28, 2, 'J4', 2190, 40, 50, 0)
+INSERT INTO Materia VALUES (29, 2, 'J5', 2250, 40, 40, 10)
+INSERT INTO Materia VALUES (30, 2, 'J6', 2450, 40, 40, 10)
 
 
-INSERT INTO Grupo VALUES (0, 0, 0, 0, '', '', 0, 0);
+/* Materias Centro*/
+INSERT INTO MateriaHistorial VALUES (1, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (2, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (3, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (4, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (5, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (6, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (7, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (8, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (9, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (10, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (11, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (12, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (13, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (14, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (15, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (16, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (17, 1, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (18, 1, 2019, 0, 0, 0, 0)
+
+/* Materias Anexo*/
+INSERT INTO MateriaHistorial VALUES (19, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (20, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (21, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (22, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (23, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (24, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (25, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (26, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (27, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (28, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (29, 2, 2019, 0, 0, 0, 0)
+INSERT INTO MateriaHistorial VALUES (30, 2, 2019, 0, 0, 0, 0)
+
+
+INSERT INTO Grupo VALUES (0, 0, 0, 0, '', '', 0, 0, 0);
+
+
+INSERT INTO Matricula VALUES (1, 2019, '20190101', 990);
+INSERT INTO Matricula VALUES (2, 2019, '20190101', 890);
 
 
 SET IDENTITY_INSERT Convenio ON
 INSERT INTO Convenio (ID, Nombre, FechaHora, Anio, AsociadoNombre, AsociadoTel, AsociadoMail, AsociadoDireccion, Descuento) VALUES (0, 'Sin Convenio', '01/01/1950', 1950, '', '', '', '', 0);
 SET IDENTITY_INSERT Convenio OFF
 
-INSERT INTO Convenio VALUES ('Circulo Policial', '19/05/2019', 2019, 'Circulo Policial de Rivera', '123456', 'circulo@policial.com', 'Artigas 123', 10);
-INSERT INTO Convenio VALUES ('CASMER', '19/05/2019', 2019, 'CASMER Femi Rivera', '123456', 'casmer@femi.com', 'Carambula 123', 15);
-INSERT INTO Convenio VALUES ('COMERI', '19/05/2019', 2019, 'COMERI Rivera', '123456', 'comeri@gmail.com', 'Rodo 123', 15);
+INSERT INTO Convenio VALUES ('Circulo Policial', '19/05/2019', 2019, 'Circulo Policial de Rivera', '123456', 'circulo@policial.com', 'Artigas 123', 17);
+INSERT INTO Convenio VALUES ('CASMER', '19/05/2019', 2019, 'CASMER Femi Rivera', '123456', 'casmer@femi.com', 'Carambula 123', 17);
+INSERT INTO Convenio VALUES ('COMERI', '19/05/2019', 2019, 'COMERI Rivera', '123456', 'comeri@gmail.com', 'Rodo 123', 17);
 
 
 INSERT INTO Libro VALUES (0, 0, 'Sin Libro', 0, '', '');
-INSERT INTO Libro VALUES (1, 1, 'Kinder Practico', 300, 'Autor', 'Editorial');
-INSERT INTO Libro VALUES (2, 1, 'Kinder Teorico', 350, 'Autor', 'Editorial');
-INSERT INTO Libro VALUES (3, 4, 'J1 Teorico', 450, 'Autor', 'Editorial');
-INSERT INTO Libro VALUES (4, 4, 'J1 Practico', 450, 'Autor', 'Editorial');
+INSERT INTO Libro VALUES (1, 1, 'Kinder 1 Practico', 300, '', '');
+INSERT INTO Libro VALUES (2, 1, 'Kinder 1 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (3, 2, 'Kinder 2 Practico', 300, '', '');
+INSERT INTO Libro VALUES (4, 2, 'Kinder 2 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (5, 8, 'J1 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (6, 8, 'J1 Practico', 300, '', '');
+INSERT INTO Libro VALUES (7, 9, 'J2 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (8, 9, 'J2 Practico', 300, '', '');
+INSERT INTO Libro VALUES (9, 10, 'J3 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (10, 10, 'J3 Practico', 300, '', '');
+INSERT INTO Libro VALUES (11, 11, 'J4 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (12, 11, 'J4 Practico', 300, '', '');
+INSERT INTO Libro VALUES (13, 12, 'J5 Teorico', 350, '', '');
+INSERT INTO Libro VALUES (14, 12, 'J5 Practico', 300, '', '');
 
 
 /* Numeradores */
-INSERT INTO Numerador VALUES ('LIBRO', 4);
+INSERT INTO Numerador VALUES ('LIBRO', 14);
 INSERT INTO Numerador VALUES ('GRUPO', 0);
-INSERT INTO Numerador VALUES ('MATER', 24);
+INSERT INTO Numerador VALUES ('MATER', 30);
 INSERT INTO Numerador VALUES ('MATRES', 0);
 INSERT INTO Numerador VALUES ('VENLIB', 0);
 INSERT INTO Numerador VALUES ('EXAMEN', 0);
@@ -507,8 +565,7 @@ INSERT INTO Numerador VALUES ('EXAMES', 0);
 
 
 /* Parametros */
-SELECT * FROM Parametro
-INSERT INTO Parametro VALUES (1, 'Email', 'bbrizolara@britanico.uy');
+INSERT INTO Parametro VALUES (1, 'Email', 'brunobrizolara1408@gmail.com');
 INSERT INTO Parametro VALUES (2, 'Email Nombre', 'Instituto Britanico');
 INSERT INTO Parametro VALUES (3, 'Email clave', 'BritanicoApp!');
 INSERT INTO Parametro VALUES (4, 'Recargo Mensualidad', '10');

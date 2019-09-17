@@ -335,7 +335,7 @@ namespace BibliotecaBritanico.Modelo
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
             List<SqlParameter> lstParametros = this.ObtenerParametros();
-            string sql = "UPDATE Estudiante SET Nombre = @Nombre, Tel = @Tel, Email = @Email, Direccion = @Direccion, FechaNac = @FechaNac, Alergico = @Alergico, Alergias = @Alergias, ContactoAlternativoUno = @ContactoAlternativoUno, ContactoAlternativoUnoTel = @ContactoAlternativoUnoTel, ContactoAlternativoDos = @ContactoAlternativoDos, ContactoAlternativoDosTel = @ContactoAlternativoDosTel, ConvenioID = @ConvenioID, GrupoID = @GrupoID, MateriaID = @MateriaID, Activo = @Activo, Validado = @Validado, TipoPublicidad = @TipoPublicidad WHERE ID = @ID;";
+            string sql = "UPDATE Estudiante SET Nombre = @Nombre, Tel = @Tel, Email = @Email, Direccion = @Direccion, FechaNac = @FechaNac, Alergico = @Alergico, Alergias = @Alergias, ContactoAlternativoUno = @ContactoAlternativoUno, ContactoAlternativoUnoTel = @ContactoAlternativoUnoTel, ContactoAlternativoDos = @ContactoAlternativoDos, ContactoAlternativoDosTel = @ContactoAlternativoDosTel, ConvenioID = @ConvenioID, GrupoID = @GrupoID, MateriaID = @MateriaID, Validado = @Validado, TipoPublicidad = @TipoPublicidad WHERE ID = @ID;";
             try
             {
                 int res = 0;
@@ -869,7 +869,7 @@ namespace BibliotecaBritanico.Modelo
             List<Estudiante> lstEstudiantes = new List<Estudiante>();
             List<SqlParameter> lstParametros = new List<SqlParameter>();
             lstParametros.Add(new SqlParameter("@ConvenioID", convenio.ID));
-            string sql = "SELECT * FROM Estudiante WHERE ConvenioID = @ConvenioID AND Activo = 1 AND GrupoID <> 0;";
+            string sql = "SELECT * FROM Estudiante WHERE ConvenioID = @ConvenioID;";
             SqlDataReader reader = null;
             try
             {
@@ -1525,13 +1525,16 @@ namespace BibliotecaBritanico.Modelo
                     examenEstudiante.NotaFinalOral = Convert.ToDecimal(reader["NotaFinalOral"]);
                     examenEstudiante.NotaFinalWritting = Convert.ToDecimal(reader["NotaFinalWritting"]);
                     examenEstudiante.InternalAssessment = Convert.ToDecimal(reader["InternalAssessment"]);
-                    DatosEscolaridad escolaridad = new DatosEscolaridad
+                    if (examenEstudiante.Examen.Calificado)
                     {
-                        Materia = materia,
-                        Grupo = grupo,
-                        ExamenEstudiante = examenEstudiante
-                    };
-                    lstDatosEscolaridad.Add(escolaridad);
+                        DatosEscolaridad escolaridad = new DatosEscolaridad
+                        {
+                            Materia = materia,
+                            Grupo = grupo,
+                            ExamenEstudiante = examenEstudiante
+                        };
+                        lstDatosEscolaridad.Add(escolaridad);
+                    }
                 }
                 lstDatosEscolaridad.OrderByDescending(e => e.ExamenEstudiante.ID).ToList();
             }
@@ -1631,36 +1634,30 @@ namespace BibliotecaBritanico.Modelo
             return SeModifico;
         }
 
-        public static List<PublicidadCantidad> GetPublicidadCantidad(string strCon, int anio = 1000)
+        public static List<ListaPublicidad> GetPublicidadCantidad(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
-            List<PublicidadCantidad> lstPublicidad = new List<PublicidadCantidad>();
-            List<SqlParameter> lstParametros = new List<SqlParameter>();
-            string sql = "";
-            if (anio > 1000)
-            {
-                lstParametros.Add(new SqlParameter("@Anio", anio));
-                sql = "SELECT E.TipoPublicidad, COUNT(E.TipoPublicidad) AS Cantidad, YEAR(FechaIngreso) AS Anio FROM Estudiante E WHERE YEAR(FechaIngreso) = @Anio GROUP BY E.TipoPublicidad, YEAR(FechaIngreso);";
-            }
-            else
-            {
-                lstParametros = null;
-                sql = "SELECT E.TipoPublicidad, COUNT(E.TipoPublicidad) AS Cantidad, YEAR(FechaIngreso) AS Anio FROM Estudiante E GROUP BY E.TipoPublicidad, YEAR(FechaIngreso);";
-            }
+            List<ListaPublicidad> lstPublicidad = new List<ListaPublicidad>();
+            string sql = "SELECT miTabla.anio, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=0) AS Recomendacion, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=1) AS Facebook, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=2) AS Instagram, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=3) AS Twitter, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=4) AS Radio, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=5) AS Television, (SELECT COUNT(id) FROM estudiante  WHERE YEAR(FechaIngreso)=miTabla.anio and tipopublicidad=6) AS Otros FROM (SELECT YEAR(FechaIngreso) AS anio FROM estudiante  GROUP BY YEAR(FechaIngreso) ) miTabla ORDER BY mitabla.anio;";
             SqlDataReader reader = null;
             try
             {
                 con.Open();
-                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                reader = Persistencia.EjecutarConsulta(con, sql, null, CommandType.Text);
                 while (reader.Read())
                 {
-                    PublicidadCantidad publicidad = new PublicidadCantidad();
+                    ListaPublicidad publicidad = new ListaPublicidad();
                     publicidad.Anio = Convert.ToInt32(reader["Anio"]);
-                    publicidad.Cantidad = Convert.ToInt32(reader["Cantidad"]);
-                    publicidad.TipoPublicidad = (TipoPublicidad)Convert.ToInt32(reader["TipoPublicidad"]);
+                    publicidad.Recomendacion = Convert.ToInt32(reader["Recomendacion"]);
+                    publicidad.Facebook = Convert.ToInt32(reader["Facebook"]);
+                    publicidad.Instagram = Convert.ToInt32(reader["Instagram"]);
+                    publicidad.Twitter = Convert.ToInt32(reader["Twitter"]);
+                    publicidad.Radio = Convert.ToInt32(reader["Radio"]);
+                    publicidad.Television = Convert.ToInt32(reader["Television"]);
+                    publicidad.Otros = Convert.ToInt32(reader["Otros"]);
                     lstPublicidad.Add(publicidad);
                 }
-                lstPublicidad = lstPublicidad.OrderBy(p => p.TipoPublicidad).OrderBy(p => p.Anio).ToList();
+                lstPublicidad.OrderByDescending(p => p.Anio).ToList();
             }
             catch (SqlException ex)
             {

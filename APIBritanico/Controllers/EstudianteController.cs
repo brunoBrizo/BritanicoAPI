@@ -67,7 +67,7 @@ namespace APIBritanico.Controllers
                     List<Examen> lstExamenes = Fachada.GetExamenPendienteByEstudiante(estudiante);
                     if (lstExamenes == null || lstExamenes.Count < 1)
                     {
-                        return BadRequest("No existen examenes pendientes");
+                        return BadRequest("El estudiante no tiene examenes pendientes");
                     }
                     return lstExamenes;
                 }
@@ -292,7 +292,7 @@ namespace APIBritanico.Controllers
             }
         }
 
-        
+
         //// GET: api/estudiante/GetDeudores/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -364,19 +364,15 @@ namespace APIBritanico.Controllers
         }
 
 
-        //// GET: api/estudiante/GetPublicidadCantidad/2323
-        [HttpGet("{anio:int}")]
+        //// GET: api/estudiante/GetPublicidadCantidad/
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<List<PublicidadCantidad>> GetPublicidadCantidad(int anio)
+        public ActionResult<List<ListaPublicidad>> GetPublicidadCantidad()
         {
             try
             {
-                if (anio < 2000)
-                {
-                    anio = 0;
-                }
-                List<PublicidadCantidad> lstPublicidad = Fachada.ObtenerPublicidadCantidad(anio);
+                List<ListaPublicidad> lstPublicidad = Fachada.ObtenerPublicidadCantidad();
                 return Ok(lstPublicidad);
             }
             catch (Exception ex)

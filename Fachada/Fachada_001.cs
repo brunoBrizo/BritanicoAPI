@@ -1962,13 +1962,11 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
-        public List<PublicidadCantidad> ObtenerPublicidadCantidad(int anio)
+        public List<ListaPublicidad> ObtenerPublicidadCantidad()
         {
             try
             {
-                List<PublicidadCantidad> lstPublicidad = new List<PublicidadCantidad>();
-                lstPublicidad = Estudiante.GetPublicidadCantidad(Fachada_001.Conexion, anio);
-                return lstPublicidad;
+                return Estudiante.GetPublicidadCantidad(Fachada_001.Conexion);
             }
             catch (ValidacionException ex)
             {
@@ -2769,6 +2767,28 @@ namespace BibliotecaBritanico.Fachada
             }
         }
 
+        public bool InscribirEstudianteConvenioAExamen(Examen examen)
+        {
+            try
+            {
+                return examen.InscribirEstudianteConConvenio(Fachada_001.Conexion);
+            }
+            catch (ValidacionException ex)
+            {
+                throw ex;
+            }
+            catch (SqlException ex)
+            {
+                Herramientas.CrearLogError("Examen", "Error en InscribirEstudianteConvenioAExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
+                throw new Exception("Error inscribiendo estudiantes con convenio a examen | Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Herramientas.CrearLogError("Examen", "Error en InscribirEstudianteConvenioAExamen | " + ex.Message, LogErrorTipo.Interno, Fachada_001.Conexion);
+                throw new Exception("Error inscribiendo estudiantes con convenio a examen | Error: " + ex.Message);
+            }
+        }
+
 
         #endregion
 
@@ -3298,7 +3318,17 @@ namespace BibliotecaBritanico.Fachada
             try
             {
                 if (Mensualidad.PagarMensualidad(lstMensualidades, Fachada_001.Conexion))
+                {
+                    Estudiante estudiante = new Estudiante
+                    {
+                        ID = lstMensualidades[0].Estudiante.ID
+                    };
+                    if (!estudiante.DebeExamen(Fachada_001.Conexion) && !estudiante.DebeMensualidad(Fachada_001.Conexion))
+                    {
+                        estudiante.SetDeudor(Fachada_001.Conexion, false);
+                    }
                     return true;
+                }
                 return false;
             }
             catch (ValidacionException ex)
@@ -3322,7 +3352,17 @@ namespace BibliotecaBritanico.Fachada
             try
             {
                 if (Mensualidad.PagarMensualidadByConvenio(convenio, funcionarioID, Fachada_001.Conexion))
+                {
+                    List<Estudiante> lstEstudiantes = Estudiante.LeerByConvenio(convenio, Fachada_001.Conexion);
+                    foreach (Estudiante estudiante in lstEstudiantes)
+                    {
+                        if (!estudiante.DebeExamen(Fachada_001.Conexion) && !estudiante.DebeMensualidad(Fachada_001.Conexion))
+                        {
+                            estudiante.SetDeudor(Fachada_001.Conexion, false);
+                        }
+                    }
                     return true;
+                }
                 return false;
             }
             catch (ValidacionException ex)
@@ -3414,6 +3454,31 @@ namespace BibliotecaBritanico.Fachada
                 {
                     if (examenEstudiante.PagarCuota(Fachada_001.Conexion))
                     {
+                        Estudiante estudiante = new Estudiante
+                        {
+                            ID = examenEstudiante.Estudiante.ID
+                        };
+                        if (!estudiante.DebeExamen(Fachada_001.Conexion) && !estudiante.DebeMensualidad(Fachada_001.Conexion))
+                        {
+                            estudiante.SetDeudor(Fachada_001.Conexion, false);
+                        }
+                        if (!examenEstudiante.Pago)
+                        {
+                            examenEstudiante.LstCuotas.Clear();
+                            examenEstudiante.Leer(Fachada_001.Conexion);
+                            decimal totalCuotas = 0;
+                            foreach(ExamenEstudianteCuota cuota in examenEstudiante.LstCuotas)
+                            {
+                                if (cuota.CuotaPaga)
+                                {
+                                    totalCuotas += cuota.Precio;
+                                }
+                            }
+                            if (totalCuotas >= examenEstudiante.Precio)
+                            {
+                                examenEstudiante.MarcarCuotasComoPagas(Fachada_001.Conexion);
+                            }
+                        }
                         return true;
                     }
                 }

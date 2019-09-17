@@ -720,6 +720,61 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
+        public bool InscribirEstudianteConConvenio(string strCon)
+        {
+            bool ret = false;
+            SqlConnection con = new SqlConnection(strCon);
+            List<Estudiante> lstEstudiante = new List<Estudiante>();
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@GrupoID", this.GrupoID));
+            lstParametros.Add(new SqlParameter("@MateriaID", this.MateriaID));
+            string sql = "SELECT E.ID AS EstudianteID FROM Estudiante E, Examen EX WHERE E.GrupoID = EX.GrupoID AND E.MateriaID = EX.MateriaID AND E.ConvenioID <> 0 AND EX.GrupoID = @GrupoID AND EX.MateriaID = @MateriaID;";
+            SqlDataReader reader = null;
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    Estudiante estudiante = new Estudiante();
+                    estudiante.ID = Convert.ToInt32(reader["EstudianteID"]);
+                    lstEstudiante.Add(estudiante);
+                }
+                reader.Close();
+                foreach (Estudiante estudianteAux in lstEstudiante)
+                {
+                    ExamenEstudiante examenEstudiante = new ExamenEstudiante
+                    {
+                        ID = 0,
+                        Estudiante = estudianteAux,
+                        Examen = this,
+                        FuncionarioID = 0,
+                        CantCuotas = 1,
+                        FechaInscripcion = DateTime.Now,
+                        NotaFinalLetra = "F",
+                        FormaPago = FormaPago.Contado
+                    };
+                    examenEstudiante.Guardar(strCon);
+                }
+                ret = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (!reader.IsClosed)
+                    reader.Close();
+                con.Close();
+            }
+            return ret;
+        }
+
 
         #endregion
 

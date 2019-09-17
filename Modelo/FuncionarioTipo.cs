@@ -8,9 +8,8 @@ namespace BibliotecaBritanico.Modelo
 {
     public enum FuncionarioTipo
     {
-        Admin = 1,
-        Director = 2,
-        Administrativo = 3,
-        Profesor = 4
+        Director = 1,
+        Administrativo = 2,
+        Profesor = 3
     }
 }

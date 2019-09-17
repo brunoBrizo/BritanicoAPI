@@ -231,6 +231,7 @@ namespace APIBritanico.Controllers
                         ExamenPrecio = examen.Precio
                     };
                     Fachada.ModificarMateriaHistorialExamenPrecio(materiaHistorial);
+                    Fachada.InscribirEstudianteConvenioAExamen(examen);
                     return examen;
                 }
             }

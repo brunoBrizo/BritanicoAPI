@@ -53,6 +53,7 @@
     <Compile Include="Modelo\ExamenEstudianteCuota.cs" />
     <Compile Include="Modelo\FiltrosPago.cs" />
     <Compile Include="Modelo\GrupoDia.cs" />
+    <Compile Include="Modelo\ListaPublicidad.cs" />
     <Compile Include="Modelo\MateriaHistorial.cs" />
     <Compile Include="Modelo\Matricula.cs" />
     <Compile Include="Modelo\Pago.cs" />
@@ -67,7 +68,6 @@
     <Compile Include="Modelo\Materia.cs" />
     <Compile Include="Modelo\MatriculaEstudiante.cs" />
     <Compile Include="Modelo\Mensualidad.cs" />
-    <Compile Include="Modelo\PublicidadCantidad.cs" />
     <Compile Include="Modelo\Sucursal.cs" />
     <Compile Include="Modelo\TipoDocumento.cs" />
     <Compile Include="Modelo\TipoPago.cs" />

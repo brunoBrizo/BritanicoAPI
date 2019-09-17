@@ -285,7 +285,7 @@ namespace BibliotecaBritanico.Modelo
                 string sql = "SELECT * FROM ExamenEstudianteCuota WHERE ExamenEstudianteID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID";
                 lstParametros.Add(new SqlParameter("@ExamenEstudianteID", this.ID));
                 lstParametros.Add(new SqlParameter("@ExamenID", this.Examen.ID));
-                lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.Grupo.ID));
+                lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
                 lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
                 con.Open();
                 reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
@@ -996,6 +996,7 @@ namespace BibliotecaBritanico.Modelo
                         lstParametrosExamenEstudiante.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
                         lstParametrosExamenEstudiante.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
                         res = Persistencia.EjecutarNoQuery(con, sqlExamenEstudiante, lstParametrosExamenEstudiante, CommandType.Text, tran);
+                        this.Pago = true;
                     }
                     SeModifico = true;
                     tran.Commit();
@@ -1020,6 +1021,34 @@ namespace BibliotecaBritanico.Modelo
             finally
             {
                 con.Close();
+            }
+            return SeModifico;
+        }
+
+        public bool MarcarCuotasComoPagas(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool SeModifico = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            lstParametros.Add(new SqlParameter("@ExamenEstudianteID", this.ID));
+            lstParametros.Add(new SqlParameter("@ExamenID", this.Examen.ID));
+            lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
+            lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
+            lstParametros.Add(new SqlParameter("@FechaHora", DateTime.Now));
+            string sql = "UPDATE ExamenEstudianteCuota SET CuotaPaga = 1, FechaPago = @FechaHora WHERE ExamenEstudianteID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID AND CuotaPaga = 0;";
+            try
+            {
+                int res = 0;
+                res = Persistencia.EjecutarNoQuery(con, sql, lstParametros, CommandType.Text, null);
+                if (res > 0) SeModifico = true;
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
             return SeModifico;
         }
@@ -1130,6 +1159,6 @@ namespace BibliotecaBritanico.Modelo
         }
 
         #endregion
-        
+
     }
 }
