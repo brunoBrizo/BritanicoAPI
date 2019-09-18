@@ -3467,7 +3467,7 @@ namespace BibliotecaBritanico.Fachada
                             examenEstudiante.LstCuotas.Clear();
                             examenEstudiante.Leer(Fachada_001.Conexion);
                             decimal totalCuotas = 0;
-                            foreach(ExamenEstudianteCuota cuota in examenEstudiante.LstCuotas)
+                            foreach (ExamenEstudianteCuota cuota in examenEstudiante.LstCuotas)
                             {
                                 if (cuota.CuotaPaga)
                                 {
@@ -3476,7 +3476,7 @@ namespace BibliotecaBritanico.Fachada
                             }
                             if (totalCuotas >= examenEstudiante.Precio)
                             {
-                                examenEstudiante.MarcarCuotasComoPagas(Fachada_001.Conexion);
+                                examenEstudiante.MarcarComoPago(Fachada_001.Conexion);
                             }
                         }
                         return true;

@@ -70,6 +70,13 @@ namespace BibliotecaBritanico.Modelo
                     {
                         errorMsg = "El estudiante ya esta inscripto a un grupo \n";
                     }
+                    if (errorMsg.Equals(String.Empty))
+                    {
+                        if (MatriculaEstudiante.ValidarExisteMatriculaEstudianteInsert(matriculaEstudiante, strCon))
+                        {
+                            throw new ValidacionException("El estudiante ya cursó una materia en el año seleccionado");
+                        }
+                    }
                 }
                 if (!errorMsg.Equals(String.Empty))
                 {
@@ -182,6 +189,46 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
+        public static bool ValidarExisteMatriculaEstudianteInsert(MatriculaEstudiante matriculaEstudiante, string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool ok = false;
+            SqlDataReader reader = null;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            
+            try
+            {
+                matriculaEstudiante.Grupo.LeerSinDias(strCon); //cargo el año del grupo
+                string sql = "";
+                sql = "SELECT * FROM Mensualidad WHERE GrupoID = @GrupoID AND MateriaID = @MateriaID AND AnioAsociado = @AnioAsociado AND Anulado = 0 AND EstudianteID = @EstudianteID";
+                lstParametros.Add(new SqlParameter("@GrupoID", matriculaEstudiante.GrupoID));
+                lstParametros.Add(new SqlParameter("@MateriaID", matriculaEstudiante.MateriaID));
+                lstParametros.Add(new SqlParameter("@EstudianteID", matriculaEstudiante.Estudiante.ID));
+                lstParametros.Add(new SqlParameter("@AnioAsociado", matriculaEstudiante.Grupo.Anio));
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    ok = true;
+                    break;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return ok;
+        }
+
         #region Persistencia
 
         public bool Leer(string strCon)
@@ -242,7 +289,7 @@ namespace BibliotecaBritanico.Modelo
         {
             SqlConnection con = new SqlConnection(strCon);
             SqlTransaction tran = null;
-            bool seGuardo = false;            
+            bool seGuardo = false;
             try
             {
                 this.ID = 0;

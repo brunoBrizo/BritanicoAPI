@@ -1025,7 +1025,7 @@ namespace BibliotecaBritanico.Modelo
             return SeModifico;
         }
 
-        public bool MarcarCuotasComoPagas(string strCon)
+        public bool MarcarComoPago(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
             bool SeModifico = false;
@@ -1035,7 +1035,7 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@GrupoID", this.Examen.GrupoID));
             lstParametros.Add(new SqlParameter("@EstudianteID", this.Estudiante.ID));
             lstParametros.Add(new SqlParameter("@FechaHora", DateTime.Now));
-            string sql = "UPDATE ExamenEstudianteCuota SET CuotaPaga = 1, FechaPago = @FechaHora WHERE ExamenEstudianteID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID AND CuotaPaga = 0;";
+            string sql = "UPDATE ExamenEstudiante SET Pago = 1 WHERE ID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID; UPDATE ExamenEstudianteCuota SET CuotaPaga = 1, FechaPago = @FechaHora WHERE ExamenEstudianteID = @ExamenEstudianteID AND ExamenID = @ExamenID AND GrupoID = @GrupoID AND EstudianteID = @EstudianteID AND CuotaPaga = 0;";
             try
             {
                 int res = 0;

@@ -320,6 +320,57 @@ namespace BibliotecaBritanico.Modelo
             return ok;
         }
 
+        public bool LeerSinDias(string strCon)
+        {
+            SqlConnection con = new SqlConnection(strCon);
+            bool ok = false;
+            List<SqlParameter> lstParametros = new List<SqlParameter>();
+            SqlDataReader reader = null;
+            string sql = "";
+            if (this.ID > 0 && this.Materia.ID > 0)
+            {
+                sql = "SELECT * FROM Grupo WHERE ID = @ID AND MateriaID = @MateriaID";
+                lstParametros.Add(new SqlParameter("@ID", this.ID));
+                lstParametros.Add(new SqlParameter("@MateriaID", this.Materia.ID));
+            }
+            else
+            {
+                throw new ValidacionException("Datos insuficientes para buscar al Grupo");
+            }
+            try
+            {
+                con.Open();
+                reader = Persistencia.EjecutarConsulta(con, sql, lstParametros, CommandType.Text);
+                while (reader.Read())
+                {
+                    this.Sucursal.ID = Convert.ToInt32(reader["SucursalID"]);
+                    this.SucursalID = Convert.ToInt32(reader["SucursalID"]);
+                    this.Funcionario.ID = Convert.ToInt32(reader["FuncionarioID"]);
+                    this.FuncionarioID = Convert.ToInt32(reader["FuncionarioID"]);
+                    this.HoraInicio = reader["HoraInicio"].ToString().Trim();
+                    this.HoraFin = reader["HoraFin"].ToString().Trim();
+                    this.Precio = Convert.ToDecimal(reader["Precio"]);
+                    this.Anio = Convert.ToInt32(reader["Anio"]);
+                    this.Activo = Convert.ToBoolean(reader["Activo"]);
+                    ok = true;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                reader.Close();
+                con.Close();
+            }
+            return ok;
+        }
+
         private void LeerDias(string strCon)
         {
             SqlConnection con = new SqlConnection(strCon);
