@@ -172,7 +172,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Email", "Error en EliminarEmail | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw new Exception("Error eliminando email | Error: " + ex.Message);
+                throw new Exception("No se puede eliminar el email");
             }
             catch (Exception ex)
             {
@@ -371,7 +371,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Convenio", "Error en EliminarConvenio | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw new Exception("No se puede eliminar el convenio | Error: " + ex.Message);
+                throw new Exception("No se puede eliminar el convenio");
             }
             catch (Exception ex)
             {
@@ -557,7 +557,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Parametro", "Error en EliminarParametro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw new Exception("Error eliminando parametro | Error: " + ex.Message);
+                throw new Exception("No se puede eliminar el parametro");
             }
             catch (Exception ex)
             {
@@ -691,7 +691,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Pago", "Error en EliminarPago | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                throw new Exception("Error eliminando pago | Error: " + ex.Message);
+                throw new Exception("No se puede eliminar el pago");
             }
             catch (Exception ex)
             {
@@ -849,14 +849,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Materia", "Error en EliminarMateria | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la materia");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando materia | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la materia");
             }
             catch (Exception ex)
             {
@@ -1063,14 +1056,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Libro", "Error en EliminarLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar el libro");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando libro | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar el libro");
             }
             catch (Exception ex)
             {
@@ -1204,14 +1190,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Empresa", "Error en EliminarEmpresa | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la empresa");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando empresa | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la empresa");
             }
             catch (Exception ex)
             {
@@ -1345,14 +1324,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Sucursal", "Error en EliminarSucursal | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la sucursal");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando sucursal | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la sucursal");
             }
             catch (Exception ex)
             {
@@ -1486,14 +1458,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Estudiante", "Error en EliminarEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar el estudiante");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando estudiante | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar el estudiante");
             }
             catch (Exception ex)
             {
@@ -2061,14 +2026,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Funcionario", "Error en EliminarFuncionario | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar al funcionario");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando funcionario | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar al funcionario");
             }
             catch (Exception ex)
             {
@@ -2281,14 +2239,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Matricula", "Error en EliminarMatricula | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la matricula");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando matricula | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la matricula");
             }
             catch (Exception ex)
             {
@@ -2444,14 +2395,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("VentaLibro", "Error en EliminarVentaLibro | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la venta del libro");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando la venta del libro | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la venta del libro");
             }
             catch (Exception ex)
             {
@@ -2608,14 +2552,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Examen", "Error en EliminarExamen | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar el examen");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando examen | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar el examen");
             }
             catch (Exception ex)
             {
@@ -2867,14 +2804,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Grupo", "Error en EliminarGrupo | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar el grupo");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando grupo | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar el grupo");
             }
             catch (Exception ex)
             {
@@ -3056,14 +2986,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("MatriculaEstudiante", "Error en EliminarMatriculaEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la matricula del estudiante");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando la matricula del estudiante | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la matricula del estudiante");
             }
             catch (Exception ex)
             {
@@ -3198,14 +3121,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("Mensualidad", "Error en EliminarMensualidad | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar la mensualidad");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando mensualidad | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar la mensualidad");
             }
             catch (Exception ex)
             {
@@ -3544,14 +3460,7 @@ namespace BibliotecaBritanico.Fachada
             catch (SqlException ex)
             {
                 Herramientas.CrearLogError("ExamenEstudiante", "Error en EliminarExamenEstudiante | " + ex.Message, LogErrorTipo.Sql, Fachada_001.Conexion);
-                if (ex.Message.Contains("conflicted with the REFERENCE constraint"))
-                {
-                    throw new Exception("No se puede eliminar el examen del estudiante");
-                }
-                else
-                {
-                    throw new Exception("Error eliminando el examen del estudiante | Error: " + ex.Message);
-                }
+                throw new Exception("No se puede eliminar el examen del estudiante");
             }
             catch (Exception ex)
             {
