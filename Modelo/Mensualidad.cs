@@ -64,7 +64,7 @@ namespace BibliotecaBritanico.Modelo
                 {
                     errorMsg += "Mes invalido \n";
                 }
-                if (mensualidad.Precio < 1)
+                if (mensualidad.Precio < 0)
                 {
                     errorMsg += "Debe ingresar un precio \n";
                 }
@@ -561,6 +561,10 @@ namespace BibliotecaBritanico.Modelo
             lstParametros.Add(new SqlParameter("@AnioAsociado", this.AnioAsociado));
             lstParametros.Add(new SqlParameter("@FuncionarioID", this.FuncionarioID));
             lstParametros.Add(new SqlParameter("@Precio", this.Precio));
+            if (this.Precio <= 0)
+            {
+                this.Paga = true;
+            }
             lstParametros.Add(new SqlParameter("@Paga", this.Paga));
             lstParametros.Add(new SqlParameter("@Anulado", this.Anulado));
             lstParametros.Add(new SqlParameter("@FechaVencimiento", this.FechaVencimiento));

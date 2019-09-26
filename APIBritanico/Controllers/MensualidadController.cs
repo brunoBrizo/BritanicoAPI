@@ -259,9 +259,9 @@ namespace APIBritanico.Controllers
                 }
                 foreach (Mensualidad mensualidad in lstMensualidades)
                 {
-                    if (mensualidad.Precio < 1)
+                    if (mensualidad.Precio < 0)
                     {
-                        return BadRequest("Precio de la mensualidad debe ser mayor a 0");
+                        return BadRequest("Monto a pagar invalido");
                     }
                 }
                 if (Fachada.PagarMensualidad(lstMensualidades))
