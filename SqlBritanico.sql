@@ -444,7 +444,8 @@ INSERT INTO Funcionario (ID, SucursalID, CI, Email, Nombre, Telefono, TelefonoAu
 VALUES (0, 0, 0, '', 'Sin Funcionario', '', '', '', '01/01/1950', '', 0, 0, 0);
 
 INSERT INTO Funcionario (ID, SucursalID, CI, Email, Nombre, Telefono, TelefonoAux, Direccion, FechaNac, Clave, Activo, TipoFuncionario, DebeModificarPassword) 
-VALUES (1, 1, 48437782, 'bbrizolara7@gmail.com', 'Bruno Brizolara', '099057586', '', '', '14/08/1990', 'q8l8oO7EBgcSvz/SQKDbyg==', 1, 1, 0);
+VALUES (1, 1, 48437782, 'bbrizolara7@gmail.com', 'Bruno Brizolara', '099057586', '', '', '14/08/1990', 'K4vZqEvlIDWyaZV1BevGnQ==', 1, 1, 0);
+/* Clave: 123456 */
 
 SET IDENTITY_INSERT Funcionario OFF
 GO

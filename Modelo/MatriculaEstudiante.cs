@@ -64,6 +64,10 @@ namespace BibliotecaBritanico.Modelo
                 {
                     errorMsg += "Debe ingresar precio \n";
                 }
+                if (matriculaEstudiante.Precio < 1 && matriculaEstudiante.Descuento < 100)
+                {
+                    errorMsg += "Debe ingresar precio \n";
+                }
                 if (errorMsg.Equals(String.Empty))
                 {
                     if (matriculaEstudiante.Estudiante.GrupoID > 0)
